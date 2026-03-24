@@ -2,98 +2,132 @@
 @tailwind components;
 @tailwind utilities;
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;0,9..40,800;1,9..40,400&family=DM+Mono:wght@400;500&display=swap');
 
 @layer base {
   :root {
-    --background: 40 20% 97%;
-    --foreground: 220 20% 10%;
+    --background: 36 14% 95%;
+    --foreground: 40 7% 10%;
 
     --card: 0 0% 100%;
-    --card-foreground: 220 20% 10%;
+    --card-foreground: 40 7% 10%;
 
     --popover: 0 0% 100%;
-    --popover-foreground: 220 20% 10%;
+    --popover-foreground: 40 7% 10%;
 
-    --primary: 190 60% 36%;
+    --primary: 221 63% 33%;
     --primary-foreground: 0 0% 100%;
 
-    --secondary: 220 14% 92%;
-    --secondary-foreground: 220 20% 20%;
+    --secondary: 36 10% 92%;
+    --secondary-foreground: 40 5% 22%;
 
-    --muted: 220 14% 96%;
-    --muted-foreground: 220 10% 46%;
+    --muted: 36 10% 95%;
+    --muted-foreground: 36 5% 38%;
 
-    --accent: 220 14% 92%;
-    --accent-foreground: 220 20% 10%;
+    --accent: 36 10% 94%;
+    --accent-foreground: 40 7% 10%;
 
-    --destructive: 0 72% 51%;
+    --destructive: 0 72% 35%;
     --destructive-foreground: 0 0% 100%;
 
-    --border: 220 13% 90%;
-    --input: 220 13% 90%;
-    --ring: 190 60% 36%;
+    --border: 36 10% 88%;
+    --input: 36 10% 88%;
+    --ring: 221 63% 33%;
 
-    --radius: 0.625rem;
+    --radius: 0.8125rem;
 
     /* POS-specific tokens */
-    --pos-nav: 220 20% 14%;
-    --pos-nav-foreground: 220 10% 80%;
-    --pos-nav-active: 190 60% 36%;
+    --pos-nav: 0 0% 100%;
+    --pos-nav-foreground: 36 5% 38%;
+    --pos-nav-active: 221 63% 33%;
 
     --pos-surface: 0 0% 100%;
     --pos-surface-elevated: 0 0% 100%;
 
-    --pos-pay: 145 60% 38%;
+    --pos-pay: 145 60% 33%;
     --pos-pay-foreground: 0 0% 100%;
 
-    --pos-status-available: 145 55% 42%;
-    --pos-status-occupied: 38 92% 50%;
-    --pos-status-reserved: 210 70% 50%;
-    --pos-status-dirty: 0 65% 55%;
+    --pos-status-available: 145 55% 33%;
+    --pos-status-occupied: 36 92% 45%;
+    --pos-status-reserved: 221 63% 33%;
+    --pos-status-dirty: 0 65% 35%;
 
-    --pos-category-bg: 220 14% 94%;
-    --pos-category-active: 190 60% 36%;
+    --pos-category-bg: 36 10% 94%;
+    --pos-category-active: 221 63% 33%;
     --pos-category-active-fg: 0 0% 100%;
 
-    --sidebar-background: 220 20% 14%;
-    --sidebar-foreground: 220 10% 80%;
-    --sidebar-primary: 190 60% 36%;
+    /* Sidebar — light surface style */
+    --sidebar-background: 0 0% 100%;
+    --sidebar-foreground: 36 5% 38%;
+    --sidebar-primary: 221 63% 33%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 18% 20%;
-    --sidebar-accent-foreground: 220 10% 90%;
-    --sidebar-border: 220 18% 22%;
-    --sidebar-ring: 190 60% 36%;
+    --sidebar-accent: 36 10% 94%;
+    --sidebar-accent-foreground: 40 7% 10%;
+    --sidebar-border: 36 10% 88%;
+    --sidebar-ring: 221 63% 33%;
+
+    /* Extended warm palette */
+    --warm-50: 36 14% 97%;
+    --warm-100: 36 10% 94%;
+    --warm-200: 36 10% 88%;
+    --warm-300: 36 8% 80%;
+    --warm-400: 36 5% 62%;
+    --warm-500: 36 5% 38%;
+    --warm-600: 40 5% 22%;
+    --warm-700: 40 7% 14%;
+    --warm-800: 40 7% 10%;
+
+    /* Status semantic */
+    --status-green: 145 55% 33%;
+    --status-green-light: 138 76% 94%;
+    --status-amber: 30 80% 32%;
+    --status-amber-light: 48 96% 89%;
+    --status-red: 0 72% 35%;
+    --status-red-light: 0 86% 94%;
+    --status-blue: 221 63% 33%;
+    --status-blue-light: 214 95% 93%;
   }
 
   .dark {
-    --background: 220 20% 7%;
-    --foreground: 220 10% 92%;
-    --card: 220 18% 11%;
-    --card-foreground: 220 10% 92%;
-    --popover: 220 18% 11%;
-    --popover-foreground: 220 10% 92%;
-    --primary: 190 60% 42%;
+    --background: 40 12% 6%;
+    --foreground: 36 10% 94%;
+    --card: 40 10% 9%;
+    --card-foreground: 36 10% 94%;
+    --popover: 40 10% 9%;
+    --popover-foreground: 36 10% 94%;
+    --primary: 221 63% 42%;
     --primary-foreground: 0 0% 100%;
-    --secondary: 220 14% 18%;
-    --secondary-foreground: 220 10% 85%;
-    --muted: 220 14% 16%;
-    --muted-foreground: 220 10% 55%;
-    --accent: 220 14% 18%;
-    --accent-foreground: 220 10% 92%;
+    --secondary: 40 8% 15%;
+    --secondary-foreground: 36 10% 85%;
+    --muted: 40 8% 13%;
+    --muted-foreground: 36 5% 42%;
+    --accent: 40 8% 15%;
+    --accent-foreground: 36 10% 94%;
     --destructive: 0 62% 30%;
     --destructive-foreground: 0 0% 100%;
-    --border: 220 14% 20%;
-    --input: 220 14% 20%;
-    --ring: 190 60% 42%;
-    --sidebar-background: 220 20% 8%;
-    --sidebar-foreground: 220 10% 75%;
-    --sidebar-primary: 190 60% 42%;
+    --border: 40 8% 17%;
+    --input: 40 8% 17%;
+    --ring: 221 63% 42%;
+    --sidebar-background: 40 12% 7%;
+    --sidebar-foreground: 36 5% 52%;
+    --sidebar-primary: 221 63% 42%;
     --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 220 18% 14%;
-    --sidebar-accent-foreground: 220 10% 85%;
-    --sidebar-border: 220 18% 16%;
-    --sidebar-ring: 190 60% 42%;
+    --sidebar-accent: 40 8% 12%;
+    --sidebar-accent-foreground: 36 10% 85%;
+    --sidebar-border: 40 8% 14%;
+    --sidebar-ring: 221 63% 42%;
+
+    --pos-nav: 40 12% 7%;
+    --pos-nav-foreground: 36 5% 52%;
+    --pos-nav-active: 221 63% 42%;
+
+    --status-green: 142 70% 55%;
+    --status-green-light: 145 40% 8%;
+    --status-amber: 45 93% 47%;
+    --status-amber-light: 36 50% 8%;
+    --status-red: 0 72% 60%;
+    --status-red-light: 0 40% 10%;
+    --status-blue-light: 221 40% 14%;
   }
 }
 
@@ -104,13 +138,16 @@
 
   body {
     @apply bg-background text-foreground font-sans antialiased;
-    font-family: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: 'DM Sans', system-ui, -apple-system, sans-serif;
+    font-size: 14px;
+    letter-spacing: -0.006em;
   }
 }
 
 @layer components {
   .pos-scrollbar::-webkit-scrollbar {
     width: 4px;
+    height: 4px;
   }
   .pos-scrollbar::-webkit-scrollbar-track {
     background: transparent;
@@ -118,5 +155,66 @@
   .pos-scrollbar::-webkit-scrollbar-thumb {
     background: hsl(var(--border));
     border-radius: 2px;
+  }
+
+  /* Uniweb-style KPI stripe */
+  .kpi-stripe {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 3px;
+    border-radius: var(--radius) var(--radius) 0 0;
+  }
+
+  /* Status badge with dot */
+  .status-badge {
+    @apply inline-flex items-center gap-1.5 px-2 py-0.5 rounded-md text-xs font-semibold;
+  }
+  .status-dot {
+    @apply w-1.5 h-1.5 rounded-full flex-shrink-0;
+  }
+
+  /* Mono text for IDs, codes */
+  .mono {
+    font-family: 'DM Mono', monospace;
+    font-size: 12px;
+    letter-spacing: 0.02em;
+  }
+
+  /* Section heading — uppercase label style */
+  .section-label {
+    @apply text-xs font-bold uppercase tracking-wider text-muted-foreground;
+    letter-spacing: 0.08em;
+    font-size: 11px;
+  }
+
+  /* Card with 1.5px border */
+  .uniweb-card {
+    @apply bg-card border-[1.5px] border-border rounded-xl;
+    transition: background 0.25s, border-color 0.25s;
+  }
+
+  /* Table header style */
+  .table-header th {
+    @apply text-left font-bold uppercase tracking-wider text-muted-foreground border-b border-border whitespace-nowrap;
+    font-size: 11px;
+    letter-spacing: 0.06em;
+    padding: 10px 14px;
+  }
+
+  .table-row td {
+    padding: 11px 14px;
+    font-size: 13px;
+    vertical-align: middle;
+  }
+
+  /* Page animation */
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(8px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  .page-enter {
+    animation: fadeUp 0.28s ease;
   }
 }
