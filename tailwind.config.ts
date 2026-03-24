@@ -14,7 +14,8 @@ export default {
     },
     extend: {
       fontFamily: {
-        sans: ["Inter", "system-ui", "-apple-system", "sans-serif"],
+        sans: ["'DM Sans'", "system-ui", "-apple-system", "sans-serif"],
+        mono: ["'DM Mono'", "monospace"],
       },
       colors: {
         border: "hsl(var(--border))",
@@ -76,11 +77,24 @@ export default {
           "category-active": "hsl(var(--pos-category-active))",
           "category-active-fg": "hsl(var(--pos-category-active-fg))",
         },
+        status: {
+          green: "hsl(var(--status-green))",
+          "green-light": "hsl(var(--status-green-light))",
+          amber: "hsl(var(--status-amber))",
+          "amber-light": "hsl(var(--status-amber-light))",
+          red: "hsl(var(--status-red))",
+          "red-light": "hsl(var(--status-red-light))",
+          blue: "hsl(var(--status-blue, var(--primary)))",
+          "blue-light": "hsl(var(--status-blue-light))",
+        },
       },
       borderRadius: {
         lg: "var(--radius)",
         md: "calc(var(--radius) - 2px)",
         sm: "calc(var(--radius) - 4px)",
+      },
+      borderWidth: {
+        "1.5": "1.5px",
       },
       keyframes: {
         "accordion-down": {
