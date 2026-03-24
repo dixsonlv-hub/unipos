@@ -1,78 +1,94 @@
 import React from "react";
-import { TrendingUp, DollarSign, Users, ShoppingBag, Clock } from "lucide-react";
+import { TrendingUp, TrendingDown, DollarSign, Users, ShoppingBag, Clock } from "lucide-react";
 
 const stats = [
-  { label: "Today's Sales", value: "$2,847.50", change: "+12.5%", icon: DollarSign, color: "text-pos-pay" },
-  { label: "Orders", value: "48", change: "+8", icon: ShoppingBag, color: "text-primary" },
-  { label: "Customers", value: "92", change: "+15", icon: Users, color: "text-pos-occupied" },
-  { label: "Avg Wait Time", value: "12 min", change: "-2 min", icon: Clock, color: "text-pos-reserved" },
+  { label: "Today's Revenue", value: "$2,847.50", change: "+12.5%", up: true, icon: DollarSign, stripe: "bg-status-green" },
+  { label: "Total Orders", value: "48", change: "+8", up: true, icon: ShoppingBag, stripe: "bg-primary" },
+  { label: "Unique Customers", value: "92", change: "+15", up: true, icon: Users, stripe: "bg-status-amber" },
+  { label: "Avg Wait Time", value: "12 min", change: "-2 min", up: true, icon: Clock, stripe: "bg-status-red" },
 ];
 
 const recentOrders = [
-  { id: "#0048", table: "T3", items: 4, total: "$96.23", status: "Open", time: "12:15 PM" },
-  { id: "#0047", table: "T2", items: 4, total: "$47.52", status: "Open", time: "12:30 PM" },
-  { id: "#0046", table: "T8", items: 2, total: "$21.38", status: "Open", time: "12:45 PM" },
-  { id: "#0045", table: "—", items: 3, total: "$35.20", status: "Paid", time: "12:00 PM" },
-  { id: "#0044", table: "T5", items: 2, total: "$18.50", status: "Paid", time: "11:45 AM" },
+  { id: "TXN-0048", table: "T3", items: 4, total: "$96.23", status: "open", time: "12:15 PM" },
+  { id: "TXN-0047", table: "T2", items: 4, total: "$47.52", status: "open", time: "12:30 PM" },
+  { id: "TXN-0046", table: "T8", items: 2, total: "$21.38", status: "open", time: "12:45 PM" },
+  { id: "TXN-0045", table: "—", items: 3, total: "$35.20", status: "settled", time: "12:00 PM" },
+  { id: "TXN-0044", table: "T5", items: 2, total: "$18.50", status: "settled", time: "11:45 AM" },
 ];
 
 const AdminDashboard: React.FC = () => (
-  <div className="p-8">
-    <div className="mb-8">
-      <h1 className="text-2xl font-bold text-foreground">Dashboard</h1>
-      <p className="text-sm text-muted-foreground">Today's overview · Hawker House Main Outlet</p>
+  <div className="p-7">
+    <div className="mb-6">
+      <h1 className="text-2xl font-bold text-foreground tracking-tight">Dashboard</h1>
+      <p className="text-[13px] text-muted-foreground mt-1">Today's overview · Song Fa Bak Kut Teh</p>
     </div>
 
-    {/* Stats */}
-    <div className="grid grid-cols-4 gap-4 mb-8">
+    {/* KPI Cards */}
+    <div className="grid grid-cols-4 gap-4 mb-6">
       {stats.map(s => (
-        <div key={s.label} className="bg-card rounded-xl border border-border p-5">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-sm text-muted-foreground">{s.label}</span>
-            <s.icon className={`h-5 w-5 ${s.color}`} />
-          </div>
-          <div className="text-2xl font-bold text-foreground">{s.value}</div>
-          <div className="flex items-center gap-1 mt-1">
-            <TrendingUp className="h-3 w-3 text-pos-pay" />
-            <span className="text-xs text-pos-pay font-medium">{s.change}</span>
+        <div key={s.label} className="uniweb-card relative overflow-hidden p-5">
+          <div className={`kpi-stripe ${s.stripe}`} />
+          <div className="section-label mt-1.5 mb-2.5">{s.label}</div>
+          <div className="text-[26px] font-bold text-foreground tracking-tighter leading-none mb-2">{s.value}</div>
+          <div className="flex items-center gap-1.5">
+            {s.up ? (
+              <span className="status-badge bg-status-green-light text-status-green">
+                <TrendingUp className="h-3 w-3" />
+                {s.change}
+              </span>
+            ) : (
+              <span className="status-badge bg-status-red-light text-status-red">
+                <TrendingDown className="h-3 w-3" />
+                {s.change}
+              </span>
+            )}
+            <span className="text-[12px] text-muted-foreground">vs last week</span>
           </div>
         </div>
       ))}
     </div>
 
     {/* Recent Orders */}
-    <div className="bg-card rounded-xl border border-border">
-      <div className="p-5 border-b border-border">
-        <h2 className="font-semibold text-foreground">Recent Orders</h2>
+    <div className="uniweb-card">
+      <div className="px-6 py-4 border-b border-border flex items-center justify-between">
+        <h2 className="text-sm font-semibold text-foreground">Recent Orders</h2>
+        <span className="text-[11px] text-muted-foreground">Last 24 hours</span>
       </div>
-      <table className="w-full">
-        <thead>
-          <tr className="border-b border-border text-xs text-muted-foreground">
-            <th className="text-left p-4 font-medium">Order</th>
-            <th className="text-left p-4 font-medium">Table</th>
-            <th className="text-left p-4 font-medium">Items</th>
-            <th className="text-left p-4 font-medium">Total</th>
-            <th className="text-left p-4 font-medium">Status</th>
-            <th className="text-left p-4 font-medium">Time</th>
-          </tr>
-        </thead>
-        <tbody>
-          {recentOrders.map(o => (
-            <tr key={o.id} className="border-b border-border last:border-0 hover:bg-muted/30">
-              <td className="p-4 text-sm font-medium text-foreground">{o.id}</td>
-              <td className="p-4 text-sm text-muted-foreground">{o.table}</td>
-              <td className="p-4 text-sm text-muted-foreground">{o.items}</td>
-              <td className="p-4 text-sm font-medium text-foreground">{o.total}</td>
-              <td className="p-4">
-                <span className={`text-xs font-medium px-2 py-1 rounded-full ${
-                  o.status === "Open" ? "bg-pos-occupied/15 text-pos-occupied" : "bg-pos-available/15 text-pos-available"
-                }`}>{o.status}</span>
-              </td>
-              <td className="p-4 text-sm text-muted-foreground">{o.time}</td>
+      <div className="overflow-x-auto">
+        <table className="w-full">
+          <thead className="table-header">
+            <tr>
+              <th>Order ID</th>
+              <th>Table</th>
+              <th>Items</th>
+              <th>Total</th>
+              <th>Status</th>
+              <th>Time</th>
             </tr>
-          ))}
-        </tbody>
-      </table>
+          </thead>
+          <tbody>
+            {recentOrders.map(o => (
+              <tr key={o.id} className="table-row border-b border-border last:border-0 hover:bg-accent transition-colors cursor-pointer">
+                <td className="font-medium text-foreground font-mono text-xs">{o.id}</td>
+                <td className="text-muted-foreground">{o.table}</td>
+                <td className="text-muted-foreground">{o.items}</td>
+                <td className="font-semibold text-foreground font-mono">{o.total}</td>
+                <td>
+                  <span className={`status-badge ${
+                    o.status === "open"
+                      ? "bg-status-amber-light text-status-amber"
+                      : "bg-status-green-light text-status-green"
+                  }`}>
+                    <span className={`status-dot ${o.status === "open" ? "bg-status-amber" : "bg-status-green"}`} />
+                    {o.status === "open" ? "Open" : "Settled"}
+                  </span>
+                </td>
+                <td className="text-muted-foreground text-xs">{o.time}</td>
+              </tr>
+            ))}
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 );
