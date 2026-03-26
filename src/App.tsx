@@ -1,8 +1,10 @@
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
+import { ThemeProvider } from "next-themes";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { LanguageProvider } from "@/hooks/useLanguage";
 import Index from "./pages/Index";
 import TabletPOS from "./pages/TabletPOS";
 import MobilePOS from "./pages/MobilePOS";
@@ -20,30 +22,34 @@ import NotFound from "./pages/NotFound";
 const queryClient = new QueryClient();
 
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-    <TooltipProvider>
-      <Toaster />
-      <Sonner />
-      <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/tablet" element={<TabletPOS />} />
-          <Route path="/mobile" element={<MobilePOS />} />
-          <Route path="/admin" element={<AdminLayout />}>
-            <Route index element={<AdminDashboard />} />
-            <Route path="menu" element={<AdminMenu />} />
-            <Route path="staff" element={<AdminStaff />} />
-            <Route path="crm" element={<AdminCRM />} />
-            <Route path="kds" element={<AdminKDS />} />
-            <Route path="sales" element={<AdminSales />} />
-            <Route path="finance" element={<AdminFinance />} />
-            <Route path="settings" element={<AdminSettings />} />
-          </Route>
-          <Route path="*" element={<NotFound />} />
-        </Routes>
-      </BrowserRouter>
-    </TooltipProvider>
-  </QueryClientProvider>
+  <ThemeProvider attribute="class" defaultTheme="light" enableSystem={false}>
+    <LanguageProvider>
+      <QueryClientProvider client={queryClient}>
+        <TooltipProvider>
+          <Toaster />
+          <Sonner />
+          <BrowserRouter>
+            <Routes>
+              <Route path="/" element={<Index />} />
+              <Route path="/tablet" element={<TabletPOS />} />
+              <Route path="/mobile" element={<MobilePOS />} />
+              <Route path="/admin" element={<AdminLayout />}>
+                <Route index element={<AdminDashboard />} />
+                <Route path="menu" element={<AdminMenu />} />
+                <Route path="staff" element={<AdminStaff />} />
+                <Route path="crm" element={<AdminCRM />} />
+                <Route path="kds" element={<AdminKDS />} />
+                <Route path="sales" element={<AdminSales />} />
+                <Route path="finance" element={<AdminFinance />} />
+                <Route path="settings" element={<AdminSettings />} />
+              </Route>
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </BrowserRouter>
+        </TooltipProvider>
+      </QueryClientProvider>
+    </LanguageProvider>
+  </ThemeProvider>
 );
 
 export default App;
