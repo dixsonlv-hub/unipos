@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { ArrowLeft, Search, Star, Plus } from "lucide-react";
+import { ArrowLeft, Search, Star, Plus, Package } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { menuItems, categories, modifierGroups, type Table, type ServiceMode, type OrderItem, type MenuItem } from "@/data/mock-data";
@@ -23,6 +23,7 @@ export const MobileMenuScreen: React.FC<Props> = ({ table, serviceMode, orderIte
 
   const filtered = menuItems.filter(i => {
     if (search) return i.name.toLowerCase().includes(search.toLowerCase());
+    if (category === "All") return true;
     return i.category === category;
   });
 
@@ -81,7 +82,7 @@ export const MobileMenuScreen: React.FC<Props> = ({ table, serviceMode, orderIte
 
       {/* Items */}
       <div className="flex-1 overflow-y-auto px-4 pb-24">
-        <div className="space-y-2">
+        <div className="grid grid-cols-2 gap-2.5">
           {filtered.map(item => {
             const qty = getItemQty(item.id);
             return (
@@ -90,30 +91,46 @@ export const MobileMenuScreen: React.FC<Props> = ({ table, serviceMode, orderIte
                 onClick={() => handleItemTap(item)}
                 disabled={!item.available}
                 className={cn(
-                  "w-full flex items-center gap-3 p-3 rounded-xl border-1.5 transition-all active:scale-[0.98]",
+                  "relative rounded-xl border-1.5 transition-all active:scale-[0.98] overflow-hidden text-left",
                   item.available
                     ? "bg-card border-border hover:border-primary/30"
                     : "bg-accent border-border/50 opacity-60"
                 )}
               >
-                <div className="flex-1 text-left">
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-medium text-[13px] text-foreground">{item.name}</span>
-                    {item.popular && <Star className="h-3 w-3 text-status-amber fill-status-amber" />}
+                {item.image ? (
+                  <div className="w-full aspect-[4/3] overflow-hidden bg-accent">
+                    <img src={item.image} alt={item.name} loading="lazy" className="w-full h-full object-cover" />
                   </div>
-                  <span className="text-[13px] font-semibold text-primary font-mono">${item.price.toFixed(2)}</span>
-                  {!item.available && <span className="text-[11px] text-destructive ml-2 font-semibold">Sold out</span>}
-                </div>
+                ) : (
+                  <div className="w-full aspect-[4/3] bg-accent/50 flex items-center justify-center">
+                    <span className="text-xl opacity-30">🍽</span>
+                  </div>
+                )}
+                {item.isCombo && (
+                  <span className="absolute top-2 left-2 flex items-center gap-1 bg-primary/90 text-primary-foreground text-[9px] font-bold px-1.5 py-0.5 rounded-md">
+                    <Package className="h-2.5 w-2.5" />COMBO
+                  </span>
+                )}
                 {qty > 0 && (
-                  <span className="w-6 h-6 rounded-md bg-primary text-primary-foreground text-[11px] font-bold flex items-center justify-center">
+                  <span className="absolute top-2 right-2 w-6 h-6 rounded-md bg-primary text-primary-foreground text-[11px] font-bold flex items-center justify-center shadow-sm">
                     {qty}
                   </span>
                 )}
-                {item.available && (
-                  <div className="w-8 h-8 rounded-lg bg-status-blue-light flex items-center justify-center">
-                    <Plus className="h-4 w-4 text-primary" />
+                <div className="p-2.5">
+                  <div className="flex items-center gap-1">
+                    <span className="font-medium text-[13px] text-foreground line-clamp-1">{item.name}</span>
+                    {item.popular && <Star className="h-3 w-3 text-status-amber fill-status-amber shrink-0" />}
                   </div>
-                )}
+                  <div className="flex items-center justify-between mt-0.5">
+                    <span className="text-[13px] font-semibold text-primary font-mono">${item.price.toFixed(2)}</span>
+                    {!item.available && <span className="text-[10px] text-destructive font-semibold">Sold out</span>}
+                    {item.available && (
+                      <div className="w-6 h-6 rounded-md bg-status-blue-light flex items-center justify-center">
+                        <Plus className="h-3.5 w-3.5 text-primary" />
+                      </div>
+                    )}
+                  </div>
+                </div>
               </button>
             );
           })}
