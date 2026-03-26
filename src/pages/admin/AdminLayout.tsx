@@ -83,6 +83,7 @@ const AdminLayout: React.FC = () => {
             {navItems.find(n => location.pathname === n.url || (n.url !== "/admin" && location.pathname.startsWith(n.url)))?.title || "Dashboard"}
           </h2>
           <div className="flex items-center gap-2">
+            <ThemeToggle />
             <button className="relative p-[7px] rounded-lg hover:bg-accent transition-colors text-muted-foreground">
               <Bell className="h-4 w-4" />
               <span className="absolute top-1 right-1 w-[7px] h-[7px] bg-destructive rounded-full border-[1.5px] border-card" />
