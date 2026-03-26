@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Search, Star, Plus } from "lucide-react";
+import { Search, Star, Plus, Package } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { menuItems, categories, modifierGroups, type Table, type Order, type MenuItem } from "@/data/mock-data";
 import { ModifierDialog } from "@/components/tablet/ModifierDialog";
@@ -17,6 +17,7 @@ export const MenuComposer: React.FC<MenuComposerProps> = ({ onAddItem, selectedT
 
   const filteredItems = menuItems.filter(item => {
     if (searchQuery) return item.name.toLowerCase().includes(searchQuery.toLowerCase());
+    if (activeCategory === "All") return true;
     return item.category === activeCategory;
   });
 
@@ -99,20 +100,42 @@ export const MenuComposer: React.FC<MenuComposerProps> = ({ onAddItem, selectedT
               onClick={() => handleItemClick(item)}
               disabled={!item.available || !currentOrder}
               className={cn(
-                "relative p-3.5 rounded-lg border-1.5 text-left transition-all group",
+                "relative rounded-lg border-1.5 text-left transition-all group overflow-hidden",
                 item.available && currentOrder
                   ? "bg-card border-border hover:border-primary/40 hover:shadow-sm cursor-pointer"
                   : "bg-accent border-border/50 opacity-60 cursor-not-allowed"
               )}
             >
-              {item.popular && (
-                <Star className="absolute top-2 right-2 h-3.5 w-3.5 text-status-amber fill-status-amber" />
+              {/* Image */}
+              {item.image ? (
+                <div className="w-full aspect-[4/3] overflow-hidden bg-accent">
+                  <img
+                    src={item.image}
+                    alt={item.name}
+                    loading="lazy"
+                    className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                  />
+                </div>
+              ) : (
+                <div className="w-full aspect-[4/3] bg-accent/50 flex items-center justify-center">
+                  <span className="text-2xl opacity-30">🍽</span>
+                </div>
               )}
-              <div className="font-medium text-[13px] text-foreground leading-tight mb-1">{item.name}</div>
-              <div className="text-[13px] font-semibold text-primary font-mono">${item.price.toFixed(2)}</div>
-              {!item.available && (
-                <div className="text-[10px] text-destructive mt-1 font-semibold">Unavailable</div>
-              )}
+              <div className="p-3">
+                {item.popular && (
+                  <Star className="absolute top-2 right-2 h-3.5 w-3.5 text-status-amber fill-status-amber drop-shadow-sm" />
+                )}
+                {item.isCombo && (
+                  <span className="absolute top-2 left-2 flex items-center gap-1 bg-primary/90 text-primary-foreground text-[10px] font-bold px-1.5 py-0.5 rounded-md">
+                    <Package className="h-2.5 w-2.5" />COMBO
+                  </span>
+                )}
+                <div className="font-medium text-[13px] text-foreground leading-tight mb-1 line-clamp-1">{item.name}</div>
+                <div className="text-[13px] font-semibold text-primary font-mono">${item.price.toFixed(2)}</div>
+                {!item.available && (
+                  <div className="text-[10px] text-destructive mt-1 font-semibold">Unavailable</div>
+                )}
+              </div>
               {item.available && currentOrder && (
                 <div className="absolute bottom-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity">
                   <div className="w-6 h-6 rounded-md bg-primary flex items-center justify-center">
