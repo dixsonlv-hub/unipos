@@ -106,34 +106,105 @@ export const categories = [
 ];
 
 export const menuItems: MenuItem[] = [
+  // Popular
   { id: "m1", name: "Chicken Rice", price: 5.50, category: "Popular", available: true, popular: true, modifierGroups: ["mg1", "mg3"] },
   { id: "m2", name: "Laksa", price: 7.00, category: "Popular", available: true, popular: true, modifierGroups: ["mg1"] },
   { id: "m3", name: "Char Kway Teow", price: 6.50, category: "Popular", available: true, popular: true, modifierGroups: ["mg1"] },
+  { id: "m8", name: "Chilli Crab", price: 38.00, category: "Popular", available: true, popular: true, modifierGroups: ["mg1"] },
+  { id: "m15", name: "Nasi Lemak", price: 6.50, category: "Popular", available: true, popular: true, modifierGroups: ["mg1", "mg3"] },
+  { id: "m22", name: "Teh Tarik", price: 2.50, category: "Popular", available: true, popular: true },
+  { id: "m12", name: "Hokkien Mee", price: 7.50, category: "Popular", available: true, popular: true, modifierGroups: ["mg1"] },
+  { id: "m60", name: "Bak Kut Teh", price: 9.80, category: "Popular", available: true, popular: true, modifierGroups: ["mg1", "mg3"] },
+
+  // Starters
   { id: "m4", name: "Satay (10pc)", price: 12.00, category: "Starters", available: true, modifierGroups: ["mg2"] },
   { id: "m5", name: "Prawn Crackers", price: 4.50, category: "Starters", available: true },
   { id: "m6", name: "Spring Rolls (4pc)", price: 6.00, category: "Starters", available: true },
   { id: "m7", name: "Popiah", price: 3.50, category: "Starters", available: true },
-  { id: "m8", name: "Chilli Crab", price: 38.00, category: "Mains", available: true, popular: true, modifierGroups: ["mg1"] },
+  { id: "m30", name: "Otak-Otak (3pc)", price: 5.50, category: "Starters", available: true },
+  { id: "m31", name: "Ngoh Hiang (5pc)", price: 8.00, category: "Starters", available: true },
+  { id: "m32", name: "Rojak", price: 6.50, category: "Starters", available: true },
+  { id: "m33", name: "Kueh Pie Tee (5pc)", price: 7.00, category: "Starters", available: true },
+  { id: "m34", name: "Tau Huay Soup", price: 3.00, category: "Starters", available: true },
+  { id: "m35", name: "You Tiao (Pair)", price: 2.50, category: "Starters", available: true },
+
+  // Mains
+  { id: "m8b", name: "Chilli Crab", price: 38.00, category: "Mains", available: true, popular: true, modifierGroups: ["mg1"] },
   { id: "m9", name: "Black Pepper Crab", price: 38.00, category: "Mains", available: true, modifierGroups: ["mg1"] },
   { id: "m10", name: "Cereal Prawn", price: 22.00, category: "Mains", available: true },
   { id: "m11", name: "Sambal Stingray", price: 15.00, category: "Mains", available: false },
-  { id: "m12", name: "Hokkien Mee", price: 7.50, category: "Noodles", available: true, modifierGroups: ["mg1"] },
+  { id: "m36", name: "Salted Egg Fish Skin", price: 16.00, category: "Mains", available: true },
+  { id: "m37", name: "Steamed Sea Bass", price: 28.00, category: "Mains", available: true, modifierGroups: ["mg1"] },
+  { id: "m38", name: "Har Cheong Gai", price: 14.00, category: "Mains", available: true },
+  { id: "m39", name: "Ayam Penyet", price: 10.50, category: "Mains", available: true, modifierGroups: ["mg1"] },
+  { id: "m40", name: "Rendang Beef", price: 13.00, category: "Mains", available: true, modifierGroups: ["mg1"] },
+  { id: "m41", name: "Curry Fish Head", price: 32.00, category: "Mains", available: true, modifierGroups: ["mg1"] },
+  { id: "m42", name: "Salted Egg Chicken", price: 12.00, category: "Mains", available: true },
+
+  // Noodles
+  { id: "m12b", name: "Hokkien Mee", price: 7.50, category: "Noodles", available: true, modifierGroups: ["mg1"] },
   { id: "m13", name: "Bak Chor Mee", price: 6.00, category: "Noodles", available: true, modifierGroups: ["mg1", "mg4"] },
   { id: "m14", name: "Wonton Noodles", price: 5.50, category: "Noodles", available: true, modifierGroups: ["mg4"] },
-  { id: "m15", name: "Nasi Lemak", price: 6.50, category: "Rice", available: true, popular: true, modifierGroups: ["mg1", "mg3"] },
+  { id: "m43", name: "Mee Siam", price: 5.00, category: "Noodles", available: true, modifierGroups: ["mg1"] },
+  { id: "m44", name: "Mee Rebus", price: 5.50, category: "Noodles", available: true, modifierGroups: ["mg1"] },
+  { id: "m45", name: "Lor Mee", price: 6.00, category: "Noodles", available: true },
+  { id: "m46", name: "Prawn Noodle Soup", price: 7.00, category: "Noodles", available: true, modifierGroups: ["mg1"] },
+  { id: "m47", name: "Kway Chap", price: 6.50, category: "Noodles", available: true },
+  { id: "m48", name: "Bee Hoon Goreng", price: 5.00, category: "Noodles", available: true, modifierGroups: ["mg1"] },
+
+  // Rice
+  { id: "m15b", name: "Nasi Lemak", price: 6.50, category: "Rice", available: true, popular: true, modifierGroups: ["mg1", "mg3"] },
   { id: "m16", name: "Nasi Goreng", price: 7.00, category: "Rice", available: true, modifierGroups: ["mg1"] },
   { id: "m17", name: "Claypot Rice", price: 9.50, category: "Rice", available: true },
+  { id: "m49", name: "Thunder Tea Rice", price: 6.50, category: "Rice", available: true },
+  { id: "m50", name: "Yong Tau Foo Rice", price: 7.50, category: "Rice", available: true, modifierGroups: ["mg3"] },
+  { id: "m51", name: "Nasi Briyani", price: 9.00, category: "Rice", available: true, modifierGroups: ["mg1"] },
+  { id: "m52", name: "Economy Rice (2 veg 1 meat)", price: 5.00, category: "Rice", available: true },
+  { id: "m53", name: "Duck Rice", price: 6.00, category: "Rice", available: true },
+
+  // Sides
   { id: "m18", name: "Kangkong Belacan", price: 8.00, category: "Sides", available: true, modifierGroups: ["mg1"] },
   { id: "m19", name: "Sambal Petai", price: 10.00, category: "Sides", available: true },
+  { id: "m54", name: "Fried Tofu", price: 5.00, category: "Sides", available: true },
+  { id: "m55", name: "Steamed Egg", price: 4.50, category: "Sides", available: true },
+  { id: "m56", name: "Sayur Lodeh", price: 6.00, category: "Sides", available: true },
+  { id: "m57", name: "Achar", price: 3.50, category: "Sides", available: true },
+  { id: "m58", name: "Fried Mantou (4pc)", price: 5.00, category: "Sides", available: true },
+  { id: "m59", name: "Garlic Spinach", price: 7.00, category: "Sides", available: true },
+
+  // Desserts
   { id: "m20", name: "Ice Kachang", price: 4.00, category: "Desserts", available: true },
   { id: "m21", name: "Chendol", price: 3.50, category: "Desserts", available: true },
-  { id: "m22", name: "Teh Tarik", price: 2.50, category: "Beverages", available: true, popular: true },
+  { id: "m61", name: "Pulut Hitam", price: 3.50, category: "Desserts", available: true },
+  { id: "m62", name: "Bubur Cha Cha", price: 4.00, category: "Desserts", available: true },
+  { id: "m63", name: "Kueh Lapis", price: 5.00, category: "Desserts", available: true },
+  { id: "m64", name: "Ondeh Ondeh (6pc)", price: 4.50, category: "Desserts", available: true },
+  { id: "m65", name: "Mango Sago", price: 5.50, category: "Desserts", available: true },
+  { id: "m66", name: "Pandan Cake", price: 5.00, category: "Desserts", available: true },
+
+  // Beverages
+  { id: "m22b", name: "Teh Tarik", price: 2.50, category: "Beverages", available: true, popular: true },
   { id: "m23", name: "Kopi O", price: 1.80, category: "Beverages", available: true },
   { id: "m24", name: "Milo Dinosaur", price: 4.00, category: "Beverages", available: true },
   { id: "m25", name: "Lime Juice", price: 2.50, category: "Beverages", available: true },
+  { id: "m67", name: "Kopi C Peng", price: 2.20, category: "Beverages", available: true },
+  { id: "m68", name: "Teh O Peng", price: 2.00, category: "Beverages", available: true },
+  { id: "m69", name: "Bandung", price: 2.50, category: "Beverages", available: true },
+  { id: "m70", name: "Barley Water", price: 2.00, category: "Beverages", available: true },
+  { id: "m71", name: "Sugarcane Juice", price: 3.00, category: "Beverages", available: true },
+  { id: "m72", name: "Coconut Water", price: 3.50, category: "Beverages", available: true },
+  { id: "m73", name: "Chrysanthemum Tea", price: 2.00, category: "Beverages", available: true },
+  { id: "m74", name: "Iced Lemon Tea", price: 2.50, category: "Beverages", available: true },
+
+  // Alcohol
   { id: "m26", name: "Tiger Beer", price: 10.00, category: "Alcohol", available: true },
   { id: "m27", name: "Singha Beer", price: 10.00, category: "Alcohol", available: true },
   { id: "m28", name: "House Wine (Glass)", price: 14.00, category: "Alcohol", available: true },
+  { id: "m75", name: "Asahi Draft", price: 12.00, category: "Alcohol", available: true },
+  { id: "m76", name: "Heineken", price: 11.00, category: "Alcohol", available: true },
+  { id: "m77", name: "Sake (Carafe)", price: 18.00, category: "Alcohol", available: true },
+  { id: "m78", name: "Soju", price: 15.00, category: "Alcohol", available: true },
+  { id: "m79", name: "Whisky Highball", price: 16.00, category: "Alcohol", available: true },
 ];
 
 export const modifierGroups: ModifierGroup[] = [
