@@ -6,6 +6,7 @@ import {
   DollarSign, Settings, LogOut, Bell
 } from "lucide-react";
 import uniwebLogo from "@/assets/uniweb-logo.jpg";
+import { ThemeToggle } from "@/components/ThemeToggle";
 
 const navItems = [
   { title: "Dashboard", url: "/admin", icon: LayoutDashboard },
