@@ -166,6 +166,49 @@ import friedMantouImg from "@/assets/food/fried-mantou.jpg";
 import mangoSagoImg from "@/assets/food/mango-sago.jpg";
 import nasiBriyaniImg from "@/assets/food/nasi-briyani.jpg";
 import lorMeeImg from "@/assets/food/lor-mee.jpg";
+// New unique images
+import cerealPrawnImg from "@/assets/food/cereal-prawn.jpg";
+import sambalStingrayImg from "@/assets/food/sambal-stingray.jpg";
+import saltedEggFishSkinImg from "@/assets/food/salted-egg-fish-skin.jpg";
+import steamedSeaBassImg from "@/assets/food/steamed-sea-bass.jpg";
+import harCheongGaiImg from "@/assets/food/har-cheong-gai.jpg";
+import prawnCrackersImg from "@/assets/food/prawn-crackers.jpg";
+import popiahImg from "@/assets/food/popiah.jpg";
+import ngohHiangImg from "@/assets/food/ngoh-hiang.jpg";
+import kuehPieTeeImg from "@/assets/food/kueh-pie-tee.jpg";
+import tauHuayImg from "@/assets/food/tau-huay.jpg";
+import meeSiamImg from "@/assets/food/mee-siam.jpg";
+import meeRebusImg from "@/assets/food/mee-rebus.jpg";
+import kwayChapImg from "@/assets/food/kway-chap.jpg";
+import beeHoonGorengImg from "@/assets/food/bee-hoon-goreng.jpg";
+import thunderTeaRiceImg from "@/assets/food/thunder-tea-rice.jpg";
+import yongTauFooImg from "@/assets/food/yong-tau-foo.jpg";
+import economyRiceImg from "@/assets/food/economy-rice.jpg";
+import sambalPetaiImg from "@/assets/food/sambal-petai.jpg";
+import friedTofuImg from "@/assets/food/fried-tofu.jpg";
+import steamedEggImg from "@/assets/food/steamed-egg.jpg";
+import sayurLodehImg from "@/assets/food/sayur-lodeh.jpg";
+import acharImg from "@/assets/food/achar.jpg";
+import garlicSpinachImg from "@/assets/food/garlic-spinach.jpg";
+import pulutHitamImg from "@/assets/food/pulut-hitam.jpg";
+import buburChaChaImg from "@/assets/food/bubur-cha-cha.jpg";
+import kuehLapisImg from "@/assets/food/kueh-lapis.jpg";
+import limeJuiceImg from "@/assets/food/lime-juice.jpg";
+import youTiaoImg from "@/assets/food/you-tiao.jpg";
+import kopiCPengImg from "@/assets/food/kopi-c-peng.jpg";
+import tehOPengImg from "@/assets/food/teh-o-peng.jpg";
+import barleyWaterImg from "@/assets/food/barley-water.jpg";
+import sugarcaneJuiceImg from "@/assets/food/sugarcane-juice.jpg";
+import coconutWaterImg from "@/assets/food/coconut-water.jpg";
+import chrysanthemumTeaImg from "@/assets/food/chrysanthemum-tea.jpg";
+import icedLemonTeaImg from "@/assets/food/iced-lemon-tea.jpg";
+import singhaBeerImg from "@/assets/food/singha-beer.jpg";
+import houseWineImg from "@/assets/food/house-wine.jpg";
+import asahiBeerImg from "@/assets/food/asahi-beer.jpg";
+import heinekenImg from "@/assets/food/heineken.jpg";
+import sakeImg from "@/assets/food/sake.jpg";
+import sojuImg from "@/assets/food/soju.jpg";
+import whiskyHighballImg from "@/assets/food/whisky-highball.jpg";
 
 export const menuItems: MenuItem[] = [
   // Popular
@@ -180,24 +223,24 @@ export const menuItems: MenuItem[] = [
 
   // Starters
   { id: "m4", name: "Satay (10pc)", nameZh: "沙爹 (10串)", price: 12.00, category: "Starters", available: true, modifierGroups: ["mg2"], image: satayImg },
-  { id: "m5", name: "Prawn Crackers", nameZh: "虾片", price: 4.50, category: "Starters", available: true, image: springRollsImg },
+  { id: "m5", name: "Prawn Crackers", nameZh: "虾片", price: 4.50, category: "Starters", available: true, image: prawnCrackersImg },
   { id: "m6", name: "Spring Rolls (4pc)", nameZh: "春卷 (4个)", price: 6.00, category: "Starters", available: true, image: springRollsImg },
-  { id: "m7", name: "Popiah", nameZh: "薄饼", price: 3.50, category: "Starters", available: true, image: springRollsImg },
+  { id: "m7", name: "Popiah", nameZh: "薄饼", price: 3.50, category: "Starters", available: true, image: popiahImg },
   { id: "m30", name: "Otak-Otak (3pc)", nameZh: "乌达 (3条)", price: 5.50, category: "Starters", available: true, image: otakOtakImg },
-  { id: "m31", name: "Ngoh Hiang (5pc)", nameZh: "五香 (5条)", price: 8.00, category: "Starters", available: true, image: springRollsImg },
+  { id: "m31", name: "Ngoh Hiang (5pc)", nameZh: "五香 (5条)", price: 8.00, category: "Starters", available: true, image: ngohHiangImg },
   { id: "m32", name: "Rojak", nameZh: "罗惹", price: 6.50, category: "Starters", available: true, image: rojakImg },
-  { id: "m33", name: "Kueh Pie Tee (5pc)", nameZh: "薄饼粿 (5个)", price: 7.00, category: "Starters", available: true, image: springRollsImg },
-  { id: "m34", name: "Tau Huay Soup", nameZh: "豆花汤", price: 3.00, category: "Starters", available: true, image: iceKachangImg },
-  { id: "m35", name: "You Tiao (Pair)", nameZh: "油条 (一对)", price: 2.50, category: "Starters", available: true, image: friedMantouImg },
+  { id: "m33", name: "Kueh Pie Tee (5pc)", nameZh: "薄饼粿 (5个)", price: 7.00, category: "Starters", available: true, image: kuehPieTeeImg },
+  { id: "m34", name: "Tau Huay Soup", nameZh: "豆花汤", price: 3.00, category: "Starters", available: true, image: tauHuayImg },
+  { id: "m35", name: "You Tiao (Pair)", nameZh: "油条 (一对)", price: 2.50, category: "Starters", available: true, image: youTiaoImg },
 
   // Mains
   { id: "m8b", name: "Chilli Crab", nameZh: "辣椒螃蟹", price: 38.00, category: "Mains", available: true, popular: true, modifierGroups: ["mg1"], image: chilliCrabImg },
   { id: "m9", name: "Black Pepper Crab", nameZh: "黑胡椒螃蟹", price: 38.00, category: "Mains", available: true, modifierGroups: ["mg1"], image: blackPepperCrabImg },
-  { id: "m10", name: "Cereal Prawn", nameZh: "麦片虾", price: 22.00, category: "Mains", available: true, image: saltedEggChickenImg },
-  { id: "m11", name: "Sambal Stingray", nameZh: "叁巴魔鬼鱼", price: 15.00, category: "Mains", available: false, image: kangkongImg },
-  { id: "m36", name: "Salted Egg Fish Skin", nameZh: "咸蛋鱼皮", price: 16.00, category: "Mains", available: true, image: saltedEggChickenImg },
-  { id: "m37", name: "Steamed Sea Bass", nameZh: "清蒸鲈鱼", price: 28.00, category: "Mains", available: true, modifierGroups: ["mg1"], image: curryFishHeadImg },
-  { id: "m38", name: "Har Cheong Gai", nameZh: "虾酱鸡", price: 14.00, category: "Mains", available: true, image: ayamPenyetImg },
+  { id: "m10", name: "Cereal Prawn", nameZh: "麦片虾", price: 22.00, category: "Mains", available: true, image: cerealPrawnImg },
+  { id: "m11", name: "Sambal Stingray", nameZh: "叁巴魔鬼鱼", price: 15.00, category: "Mains", available: false, image: sambalStingrayImg },
+  { id: "m36", name: "Salted Egg Fish Skin", nameZh: "咸蛋鱼皮", price: 16.00, category: "Mains", available: true, image: saltedEggFishSkinImg },
+  { id: "m37", name: "Steamed Sea Bass", nameZh: "清蒸鲈鱼", price: 28.00, category: "Mains", available: true, modifierGroups: ["mg1"], image: steamedSeaBassImg },
+  { id: "m38", name: "Har Cheong Gai", nameZh: "虾酱鸡", price: 14.00, category: "Mains", available: true, image: harCheongGaiImg },
   { id: "m39", name: "Ayam Penyet", nameZh: "印尼碎鸡", price: 10.50, category: "Mains", available: true, modifierGroups: ["mg1"], image: ayamPenyetImg },
   { id: "m40", name: "Rendang Beef", nameZh: "仁当牛肉", price: 13.00, category: "Mains", available: true, modifierGroups: ["mg1"], image: rendangBeefImg },
   { id: "m41", name: "Curry Fish Head", nameZh: "咖喱鱼头", price: 32.00, category: "Mains", available: true, modifierGroups: ["mg1"], image: curryFishHeadImg },
@@ -207,39 +250,39 @@ export const menuItems: MenuItem[] = [
   { id: "m12b", name: "Hokkien Mee", nameZh: "福建面", price: 7.50, category: "Noodles", available: true, modifierGroups: ["mg1"], image: hokkienMeeImg },
   { id: "m13", name: "Bak Chor Mee", nameZh: "肉脞面", price: 6.00, category: "Noodles", available: true, modifierGroups: ["mg1", "mg4"], image: bakChorMeeImg },
   { id: "m14", name: "Wonton Noodles", nameZh: "云吞面", price: 5.50, category: "Noodles", available: true, modifierGroups: ["mg4"], image: wontonNoodlesImg },
-  { id: "m43", name: "Mee Siam", nameZh: "米暹", price: 5.00, category: "Noodles", available: true, modifierGroups: ["mg1"], image: laksaImg },
-  { id: "m44", name: "Mee Rebus", nameZh: "马来卤面", price: 5.50, category: "Noodles", available: true, modifierGroups: ["mg1"], image: lorMeeImg },
+  { id: "m43", name: "Mee Siam", nameZh: "米暹", price: 5.00, category: "Noodles", available: true, modifierGroups: ["mg1"], image: meeSiamImg },
+  { id: "m44", name: "Mee Rebus", nameZh: "马来卤面", price: 5.50, category: "Noodles", available: true, modifierGroups: ["mg1"], image: meeRebusImg },
   { id: "m45", name: "Lor Mee", nameZh: "卤面", price: 6.00, category: "Noodles", available: true, image: lorMeeImg },
   { id: "m46", name: "Prawn Noodle Soup", nameZh: "虾面汤", price: 7.00, category: "Noodles", available: true, modifierGroups: ["mg1"], image: prawnNoodleImg },
-  { id: "m47", name: "Kway Chap", nameZh: "粿汁", price: 6.50, category: "Noodles", available: true, image: bakChorMeeImg },
-  { id: "m48", name: "Bee Hoon Goreng", nameZh: "炒米粉", price: 5.00, category: "Noodles", available: true, modifierGroups: ["mg1"], image: charKwayTeowImg },
+  { id: "m47", name: "Kway Chap", nameZh: "粿汁", price: 6.50, category: "Noodles", available: true, image: kwayChapImg },
+  { id: "m48", name: "Bee Hoon Goreng", nameZh: "炒米粉", price: 5.00, category: "Noodles", available: true, modifierGroups: ["mg1"], image: beeHoonGorengImg },
 
   // Rice
   { id: "m15b", name: "Nasi Lemak", nameZh: "椰浆饭", price: 6.50, category: "Rice", available: true, popular: true, modifierGroups: ["mg1", "mg3"], image: nasiLemakImg },
   { id: "m16", name: "Nasi Goreng", nameZh: "炒饭", price: 7.00, category: "Rice", available: true, modifierGroups: ["mg1"], image: nasiGorengImg },
   { id: "m17", name: "Claypot Rice", nameZh: "砂锅饭", price: 9.50, category: "Rice", available: true, image: claypotRiceImg },
-  { id: "m49", name: "Thunder Tea Rice", nameZh: "擂茶饭", price: 6.50, category: "Rice", available: true, image: chickenRiceImg },
-  { id: "m50", name: "Yong Tau Foo Rice", nameZh: "酿豆腐饭", price: 7.50, category: "Rice", available: true, modifierGroups: ["mg3"], image: nasiLemakImg },
+  { id: "m49", name: "Thunder Tea Rice", nameZh: "擂茶饭", price: 6.50, category: "Rice", available: true, image: thunderTeaRiceImg },
+  { id: "m50", name: "Yong Tau Foo Rice", nameZh: "酿豆腐饭", price: 7.50, category: "Rice", available: true, modifierGroups: ["mg3"], image: yongTauFooImg },
   { id: "m51", name: "Nasi Briyani", nameZh: "印度香饭", price: 9.00, category: "Rice", available: true, modifierGroups: ["mg1"], image: nasiBriyaniImg },
-  { id: "m52", name: "Economy Rice (2 veg 1 meat)", nameZh: "杂菜饭", price: 5.00, category: "Rice", available: true, image: chickenRiceImg },
+  { id: "m52", name: "Economy Rice (2 veg 1 meat)", nameZh: "杂菜饭", price: 5.00, category: "Rice", available: true, image: economyRiceImg },
   { id: "m53", name: "Duck Rice", nameZh: "鸭饭", price: 6.00, category: "Rice", available: true, image: duckRiceImg },
 
   // Sides
   { id: "m18", name: "Kangkong Belacan", nameZh: "马来风光", price: 8.00, category: "Sides", available: true, modifierGroups: ["mg1"], image: kangkongImg },
-  { id: "m19", name: "Sambal Petai", nameZh: "叁巴臭豆", price: 10.00, category: "Sides", available: true, image: kangkongImg },
-  { id: "m54", name: "Fried Tofu", nameZh: "炸豆腐", price: 5.00, category: "Sides", available: true, image: friedMantouImg },
-  { id: "m55", name: "Steamed Egg", nameZh: "蒸蛋", price: 4.50, category: "Sides", available: true, image: iceKachangImg },
-  { id: "m56", name: "Sayur Lodeh", nameZh: "杂菜咖喱", price: 6.00, category: "Sides", available: true, image: kangkongImg },
-  { id: "m57", name: "Achar", nameZh: "腌菜", price: 3.50, category: "Sides", available: true, image: rojakImg },
+  { id: "m19", name: "Sambal Petai", nameZh: "叁巴臭豆", price: 10.00, category: "Sides", available: true, image: sambalPetaiImg },
+  { id: "m54", name: "Fried Tofu", nameZh: "炸豆腐", price: 5.00, category: "Sides", available: true, image: friedTofuImg },
+  { id: "m55", name: "Steamed Egg", nameZh: "蒸蛋", price: 4.50, category: "Sides", available: true, image: steamedEggImg },
+  { id: "m56", name: "Sayur Lodeh", nameZh: "杂菜咖喱", price: 6.00, category: "Sides", available: true, image: sayurLodehImg },
+  { id: "m57", name: "Achar", nameZh: "腌菜", price: 3.50, category: "Sides", available: true, image: acharImg },
   { id: "m58", name: "Fried Mantou (4pc)", nameZh: "炸馒头 (4个)", price: 5.00, category: "Sides", available: true, image: friedMantouImg },
-  { id: "m59", name: "Garlic Spinach", nameZh: "蒜蓉菠菜", price: 7.00, category: "Sides", available: true, image: kangkongImg },
+  { id: "m59", name: "Garlic Spinach", nameZh: "蒜蓉菠菜", price: 7.00, category: "Sides", available: true, image: garlicSpinachImg },
 
   // Desserts
   { id: "m20", name: "Ice Kachang", nameZh: "红豆冰", price: 4.00, category: "Desserts", available: true, image: iceKachangImg },
   { id: "m21", name: "Chendol", nameZh: "煎蕊", price: 3.50, category: "Desserts", available: true, image: chendolImg },
-  { id: "m61", name: "Pulut Hitam", nameZh: "黑糯米", price: 3.50, category: "Desserts", available: true, image: chendolImg },
-  { id: "m62", name: "Bubur Cha Cha", nameZh: "摩摩喳喳", price: 4.00, category: "Desserts", available: true, image: iceKachangImg },
-  { id: "m63", name: "Kueh Lapis", nameZh: "千层糕", price: 5.00, category: "Desserts", available: true, image: pandanCakeImg },
+  { id: "m61", name: "Pulut Hitam", nameZh: "黑糯米", price: 3.50, category: "Desserts", available: true, image: pulutHitamImg },
+  { id: "m62", name: "Bubur Cha Cha", nameZh: "摩摩喳喳", price: 4.00, category: "Desserts", available: true, image: buburChaChaImg },
+  { id: "m63", name: "Kueh Lapis", nameZh: "千层糕", price: 5.00, category: "Desserts", available: true, image: kuehLapisImg },
   { id: "m64", name: "Ondeh Ondeh (6pc)", nameZh: "椰丝球 (6个)", price: 4.50, category: "Desserts", available: true, image: ondehOndehImg },
   { id: "m65", name: "Mango Sago", nameZh: "杨枝甘露", price: 5.50, category: "Desserts", available: true, image: mangoSagoImg },
   { id: "m66", name: "Pandan Cake", nameZh: "班兰蛋糕", price: 5.00, category: "Desserts", available: true, image: pandanCakeImg },
@@ -248,25 +291,25 @@ export const menuItems: MenuItem[] = [
   { id: "m22b", name: "Teh Tarik", nameZh: "拉茶", price: 2.50, category: "Beverages", available: true, popular: true, image: tehTarikImg },
   { id: "m23", name: "Kopi O", nameZh: "咖啡乌", price: 1.80, category: "Beverages", available: true, image: kopiOImg },
   { id: "m24", name: "Milo Dinosaur", nameZh: "美禄恐龙", price: 4.00, category: "Beverages", available: true, image: miloDinosaurImg },
-  { id: "m25", name: "Lime Juice", nameZh: "酸柑水", price: 2.50, category: "Beverages", available: true, image: bandungImg },
-  { id: "m67", name: "Kopi C Peng", nameZh: "咖啡C冰", price: 2.20, category: "Beverages", available: true, image: kopiOImg },
-  { id: "m68", name: "Teh O Peng", nameZh: "茶乌冰", price: 2.00, category: "Beverages", available: true, image: tehTarikImg },
+  { id: "m25", name: "Lime Juice", nameZh: "酸柑水", price: 2.50, category: "Beverages", available: true, image: limeJuiceImg },
+  { id: "m67", name: "Kopi C Peng", nameZh: "咖啡C冰", price: 2.20, category: "Beverages", available: true, image: kopiCPengImg },
+  { id: "m68", name: "Teh O Peng", nameZh: "茶乌冰", price: 2.00, category: "Beverages", available: true, image: tehOPengImg },
   { id: "m69", name: "Bandung", nameZh: "玫瑰露", price: 2.50, category: "Beverages", available: true, image: bandungImg },
-  { id: "m70", name: "Barley Water", nameZh: "薏米水", price: 2.00, category: "Beverages", available: true, image: bandungImg },
-  { id: "m71", name: "Sugarcane Juice", nameZh: "甘蔗水", price: 3.00, category: "Beverages", available: true, image: bandungImg },
-  { id: "m72", name: "Coconut Water", nameZh: "椰水", price: 3.50, category: "Beverages", available: true, image: bandungImg },
-  { id: "m73", name: "Chrysanthemum Tea", nameZh: "菊花茶", price: 2.00, category: "Beverages", available: true, image: tehTarikImg },
-  { id: "m74", name: "Iced Lemon Tea", nameZh: "冰柠檬茶", price: 2.50, category: "Beverages", available: true, image: tehTarikImg },
+  { id: "m70", name: "Barley Water", nameZh: "薏米水", price: 2.00, category: "Beverages", available: true, image: barleyWaterImg },
+  { id: "m71", name: "Sugarcane Juice", nameZh: "甘蔗水", price: 3.00, category: "Beverages", available: true, image: sugarcaneJuiceImg },
+  { id: "m72", name: "Coconut Water", nameZh: "椰水", price: 3.50, category: "Beverages", available: true, image: coconutWaterImg },
+  { id: "m73", name: "Chrysanthemum Tea", nameZh: "菊花茶", price: 2.00, category: "Beverages", available: true, image: chrysanthemumTeaImg },
+  { id: "m74", name: "Iced Lemon Tea", nameZh: "冰柠檬茶", price: 2.50, category: "Beverages", available: true, image: icedLemonTeaImg },
 
   // Alcohol
   { id: "m26", name: "Tiger Beer", nameZh: "虎牌啤酒", price: 10.00, category: "Alcohol", available: true, image: tigerBeerImg },
-  { id: "m27", name: "Singha Beer", nameZh: "胜狮啤酒", price: 10.00, category: "Alcohol", available: true, image: tigerBeerImg },
-  { id: "m28", name: "House Wine (Glass)", nameZh: "红酒 (杯)", price: 14.00, category: "Alcohol", available: true, image: tigerBeerImg },
-  { id: "m75", name: "Asahi Draft", nameZh: "朝日生啤", price: 12.00, category: "Alcohol", available: true, image: tigerBeerImg },
-  { id: "m76", name: "Heineken", nameZh: "喜力啤酒", price: 11.00, category: "Alcohol", available: true, image: tigerBeerImg },
-  { id: "m77", name: "Sake (Carafe)", nameZh: "清酒 (壶)", price: 18.00, category: "Alcohol", available: true, image: tigerBeerImg },
-  { id: "m78", name: "Soju", nameZh: "烧酒", price: 15.00, category: "Alcohol", available: true, image: tigerBeerImg },
-  { id: "m79", name: "Whisky Highball", nameZh: "威士忌嗨棒", price: 16.00, category: "Alcohol", available: true, image: tigerBeerImg },
+  { id: "m27", name: "Singha Beer", nameZh: "胜狮啤酒", price: 10.00, category: "Alcohol", available: true, image: singhaBeerImg },
+  { id: "m28", name: "House Wine (Glass)", nameZh: "红酒 (杯)", price: 14.00, category: "Alcohol", available: true, image: houseWineImg },
+  { id: "m75", name: "Asahi Draft", nameZh: "朝日生啤", price: 12.00, category: "Alcohol", available: true, image: asahiBeerImg },
+  { id: "m76", name: "Heineken", nameZh: "喜力啤酒", price: 11.00, category: "Alcohol", available: true, image: heinekenImg },
+  { id: "m77", name: "Sake (Carafe)", nameZh: "清酒 (壶)", price: 18.00, category: "Alcohol", available: true, image: sakeImg },
+  { id: "m78", name: "Soju", nameZh: "烧酒", price: 15.00, category: "Alcohol", available: true, image: sojuImg },
+  { id: "m79", name: "Whisky Highball", nameZh: "威士忌嗨棒", price: 16.00, category: "Alcohol", available: true, image: whiskyHighballImg },
 
   // Combos - Fixed
   {
