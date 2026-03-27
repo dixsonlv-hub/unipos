@@ -118,15 +118,15 @@ export const MobileMenuScreen: React.FC<Props> = ({ table, serviceMode, orderIte
                     : "bg-accent border-border/50 opacity-60"
                 )}
               >
-                {item.image ? (
-                  <div className="w-full aspect-[4/3] overflow-hidden bg-accent">
-                    <img src={item.image} alt={item.name} loading="lazy" className="w-full h-full object-cover" />
-                  </div>
-                ) : (
-                  <div className="w-full aspect-[4/3] bg-accent/50 flex items-center justify-center">
-                    <span className="text-xl opacity-30">🍽</span>
-                  </div>
-                )}
+                <div className="w-full aspect-[4/3] overflow-hidden bg-accent relative">
+                  {item.image ? (
+                    <img src={item.image} alt={item.name} loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-xl opacity-30">🍽</span>
+                    </div>
+                  )}
+                </div>
                 {item.isCombo && (
                   <span className={cn(
                     "absolute top-2 left-2 flex items-center gap-1 text-primary-foreground text-[9px] font-bold px-1.5 py-0.5 rounded-md",

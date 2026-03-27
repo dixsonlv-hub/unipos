@@ -135,20 +135,20 @@ export const MenuComposer: React.FC<MenuComposerProps> = ({ onAddItem, selectedT
                 )}
               >
                 {/* Image */}
-                {item.image ? (
-                  <div className="w-full aspect-[4/3] overflow-hidden bg-accent">
+                <div className="w-full aspect-[4/3] overflow-hidden bg-accent relative">
+                  {item.image ? (
                     <img
                       src={item.image}
                       alt={item.name}
                       loading="lazy"
-                      className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
                     />
-                  </div>
-                ) : (
-                  <div className="w-full aspect-[4/3] bg-accent/50 flex items-center justify-center">
-                    <span className="text-2xl opacity-30">🍽</span>
-                  </div>
-                )}
+                  ) : (
+                    <div className="absolute inset-0 flex items-center justify-center">
+                      <span className="text-2xl opacity-30">🍽</span>
+                    </div>
+                  )}
+                </div>
                 <div className="p-3">
                   {item.popular && (
                     <Star className="absolute top-2 right-2 h-3.5 w-3.5 text-status-amber fill-status-amber drop-shadow-sm" />
