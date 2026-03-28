@@ -115,6 +115,34 @@ const dict: Record<Lang, Record<string, string>> = {
     choose_your: "Choose your",
     selected: "Selected",
     remaining: "remaining",
+
+    // CheckPanel
+    select_table_start: "Select a table to start",
+    no_items: "No items yet",
+    add_from_menu: "Add items from the menu",
+
+    // Payment
+    payment: "Payment",
+    payment_complete: "Payment Complete",
+    payment_method: "Payment Method",
+    amount_due: "Amount Due",
+    card: "Card",
+    cash: "Cash",
+    cash_received: "Cash Received",
+    change: "Change",
+    tap_insert_swipe: "Tap, insert, or swipe card",
+    scan_qr: "Scan",
+    processing: "Processing...",
+    confirm_payment: "Confirm Payment",
+    paid_via: "paid via",
+    done: "Done",
+    discount: "Discount",
+
+    // History
+    history: "History",
+    order_history: "Order History",
+    order_detail: "Order Detail",
+    no_history: "No completed orders yet",
   },
   zh: {
     tables: "桌位",
@@ -216,6 +244,31 @@ const dict: Record<Lang, Record<string, string>> = {
     choose_your: "选择你的",
     selected: "已选",
     remaining: "待选",
+
+    select_table_start: "选择桌位开始",
+    no_items: "暂无菜品",
+    add_from_menu: "从菜单添加菜品",
+
+    payment: "支付",
+    payment_complete: "支付成功",
+    payment_method: "支付方式",
+    amount_due: "应付金额",
+    card: "银行卡",
+    cash: "现金",
+    cash_received: "收到现金",
+    change: "找零",
+    tap_insert_swipe: "请刷卡、插卡或感应",
+    scan_qr: "扫码",
+    processing: "处理中...",
+    confirm_payment: "确认支付",
+    paid_via: "通过",
+    done: "完成",
+    discount: "折扣",
+
+    history: "历史",
+    order_history: "交易历史",
+    order_detail: "交易详情",
+    no_history: "暂无已完成订单",
   },
 };
 

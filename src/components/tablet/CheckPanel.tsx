@@ -2,6 +2,7 @@ import React from "react";
 import { Minus, Plus, Trash2, Users, UtensilsCrossed } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { type Order, type Table } from "@/data/mock-data";
+import { useLanguage } from "@/hooks/useLanguage";
 
 interface CheckPanelProps {
   order: Order | null;
@@ -12,11 +13,13 @@ interface CheckPanelProps {
 }
 
 export const CheckPanel: React.FC<CheckPanelProps> = ({ order, table, onUpdateQuantity, onRemoveItem, onPay }) => {
+  const { t } = useLanguage();
+
   if (!order) {
     return (
       <div className="w-80 bg-card border-l border-border flex flex-col items-center justify-center shrink-0">
         <UtensilsCrossed className="h-10 w-10 text-muted-foreground/20 mb-3" />
-        <p className="text-[13px] text-muted-foreground">Select a table to start</p>
+        <p className="text-[13px] text-muted-foreground">{t("select_table_start")}</p>
       </div>
     );
   }
@@ -28,7 +31,7 @@ export const CheckPanel: React.FC<CheckPanelProps> = ({ order, table, onUpdateQu
         <div className="flex items-center justify-between">
           <div>
             <h3 className="font-semibold text-foreground text-[13px]">
-              {table ? `Table ${table.number}` : `${order.serviceMode}`}
+              {table ? `${t("tables")} ${table.number}` : `${order.serviceMode}`}
             </h3>
             <span className="text-[11px] text-muted-foreground capitalize">{order.serviceMode}</span>
           </div>
@@ -43,8 +46,8 @@ export const CheckPanel: React.FC<CheckPanelProps> = ({ order, table, onUpdateQu
       <div className="flex-1 overflow-y-auto pos-scrollbar p-3 space-y-1">
         {order.items.length === 0 ? (
           <div className="flex flex-col items-center justify-center h-full text-muted-foreground">
-            <p className="text-[13px]">No items yet</p>
-            <p className="text-[11px] mt-1">Add items from the menu</p>
+            <p className="text-[13px]">{t("no_items")}</p>
+            <p className="text-[11px] mt-1">{t("add_from_menu")}</p>
           </div>
         ) : (
           order.items.map(item => (
@@ -94,19 +97,19 @@ export const CheckPanel: React.FC<CheckPanelProps> = ({ order, table, onUpdateQu
       {/* Totals & Pay */}
       <div className="border-t border-border p-4 space-y-2">
         <div className="flex justify-between text-[13px] text-muted-foreground">
-          <span>Subtotal</span>
+          <span>{t("subtotal")}</span>
           <span className="font-mono">${order.subtotal.toFixed(2)}</span>
         </div>
         <div className="flex justify-between text-[13px] text-muted-foreground">
-          <span>Service Charge (10%)</span>
+          <span>{t("service_charge")} (10%)</span>
           <span className="font-mono">${order.serviceCharge.toFixed(2)}</span>
         </div>
         <div className="flex justify-between text-[13px] text-muted-foreground">
-          <span>GST (9%)</span>
+          <span>{t("gst")}</span>
           <span className="font-mono">${order.gst.toFixed(2)}</span>
         </div>
         <div className="flex justify-between text-base font-bold text-foreground pt-2 border-t border-border">
-          <span>Total</span>
+          <span>{t("total")}</span>
           <span className="font-mono">${order.total.toFixed(2)}</span>
         </div>
         <Button
@@ -116,7 +119,7 @@ export const CheckPanel: React.FC<CheckPanelProps> = ({ order, table, onUpdateQu
           disabled={order.items.length === 0}
           onClick={onPay}
         >
-          Pay ${order.total.toFixed(2)}
+          {t("pay")} ${order.total.toFixed(2)}
         </Button>
       </div>
     </div>
