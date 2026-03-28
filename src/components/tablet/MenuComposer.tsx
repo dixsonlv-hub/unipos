@@ -135,16 +135,16 @@ export const MenuComposer: React.FC<MenuComposerProps> = ({ onAddItem, selectedT
                 )}
               >
                 {/* Image */}
-                <div className="w-full aspect-[4/3] overflow-hidden bg-accent relative">
+                <div className="w-full aspect-[4/3] overflow-hidden bg-accent relative flex-shrink-0">
                   {item.image ? (
                     <img
                       src={item.image}
                       alt={item.name}
                       loading="lazy"
-                      className="absolute inset-0 w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                      className="absolute inset-0 w-full h-full object-cover object-center group-hover:scale-105 transition-transform duration-300"
                     />
                   ) : (
-                    <div className="absolute inset-0 flex items-center justify-center">
+                    <div className="absolute inset-0 flex items-center justify-center bg-muted">
                       <span className="text-2xl opacity-30">🍽</span>
                     </div>
                   )}
