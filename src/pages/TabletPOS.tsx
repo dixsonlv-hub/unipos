@@ -1,22 +1,30 @@
 import React, { useState, useCallback } from "react";
+import { Receipt } from "lucide-react";
 import { FloorPanel } from "@/components/tablet/FloorPanel";
 import { MenuComposer } from "@/components/tablet/MenuComposer";
 import { CheckPanel } from "@/components/tablet/CheckPanel";
 import { PaymentSheet } from "@/components/tablet/PaymentSheet";
+import { OrderHistory, type PaidOrder } from "@/components/tablet/OrderHistory";
 import { tables as mockTables, sampleOrders, menuItems, type Table, type Order, type OrderItem, type ServiceMode } from "@/data/mock-data";
 import { ThemeToggle } from "@/components/ThemeToggle";
+import { useLanguage } from "@/hooks/useLanguage";
 
 const TabletPOS: React.FC = () => {
+  const { t } = useLanguage();
   const [tables, setTables] = useState(mockTables);
   const [orders, setOrders] = useState(sampleOrders);
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null);
   const [currentOrder, setCurrentOrder] = useState<Order | null>(null);
   const [showPayment, setShowPayment] = useState(false);
+  const [showHistory, setShowHistory] = useState(false);
+  const [paidOrders, setPaidOrders] = useState<PaidOrder[]>([]);
+  const [floorFullscreen, setFloorFullscreen] = useState(false);
 
   const selectedTable = tables.find(t => t.id === selectedTableId);
 
   const handleSelectTable = useCallback((tableId: string) => {
     setSelectedTableId(tableId);
+    setFloorFullscreen(false);
     const table = tables.find(t => t.id === tableId);
     if (table?.orderId) {
       const order = orders.find(o => o.id === table.orderId);
@@ -97,7 +105,6 @@ const TabletPOS: React.FC = () => {
       return { ...prev, items: newItems, ...totals };
     });
 
-    // Update table status to "ordering" if it was just opened
     if (selectedTableId) {
       setTables(prev => prev.map(t =>
         t.id === selectedTableId && t.status === "ordering" ? { ...t, openAmount: undefined } : t
@@ -125,7 +132,28 @@ const TabletPOS: React.FC = () => {
     });
   }, []);
 
-  const handlePaymentComplete = useCallback(() => {
+  const paymentMethods = ["Visa", "Mastercard", "UnionPay", "Alipay", "WeChat Pay", "PayNow", "Cash"];
+
+  const handlePaymentComplete = useCallback((method?: string) => {
+    if (currentOrder) {
+      const paid: PaidOrder = {
+        id: currentOrder.id,
+        tableNumber: currentOrder.tableNumber,
+        serviceMode: currentOrder.serviceMode,
+        items: currentOrder.items.map(i => ({
+          name: i.name, quantity: i.quantity, price: i.price,
+          modifiers: i.modifiers,
+        })),
+        subtotal: currentOrder.subtotal,
+        discount: 0,
+        serviceCharge: currentOrder.serviceCharge,
+        gst: currentOrder.gst,
+        total: currentOrder.total,
+        paidAt: new Date().toISOString(),
+        paymentMethod: method || paymentMethods[Math.floor(Math.random() * paymentMethods.length)],
+      };
+      setPaidOrders(prev => [paid, ...prev]);
+    }
     setShowPayment(false);
     if (currentOrder?.tableId) {
       setTables(prev => prev.map(t =>
@@ -147,7 +175,6 @@ const TabletPOS: React.FC = () => {
         return t;
       });
     });
-    // Update the order's tableId
     if (currentOrder) {
       const toTable = tables.find(t => t.id === toId);
       setCurrentOrder(prev => prev ? { ...prev, tableId: toId, tableNumber: toTable?.number } : prev);
@@ -164,9 +191,7 @@ const TabletPOS: React.FC = () => {
         const totalSeats = tableIds.reduce((sum, id) => sum + (prev.find(x => x.id === id)?.seats || 0), 0);
         return { ...t, seats: totalSeats, mergedWith: others };
       }
-      if (others.includes(t.id)) {
-        return { ...t, status: "available" as const, mergedWith: undefined }; // Hide merged tables
-      }
+      if (others.includes(t.id)) return { ...t, status: "available" as const, mergedWith: undefined };
       return t;
     }));
   }, []);
@@ -203,22 +228,40 @@ const TabletPOS: React.FC = () => {
         onTransferTable={handleTransferTable}
         onMergeTables={handleMergeTables}
         onSplitTable={handleSplitTable}
+        isFullscreen={floorFullscreen}
+        onToggleFullscreen={() => setFloorFullscreen(f => !f)}
       />
-      <MenuComposer
-        onAddItem={handleAddItem}
-        selectedTable={selectedTable}
-        currentOrder={currentOrder}
-      />
-      <CheckPanel
-        order={currentOrder}
-        table={selectedTable}
-        onUpdateQuantity={handleUpdateQuantity}
-        onRemoveItem={handleRemoveItem}
-        onPay={() => setShowPayment(true)}
-      />
+      {!floorFullscreen && (
+        <>
+          <MenuComposer
+            onAddItem={handleAddItem}
+            selectedTable={selectedTable}
+            currentOrder={currentOrder}
+          />
+          <CheckPanel
+            order={currentOrder}
+            table={selectedTable}
+            onUpdateQuantity={handleUpdateQuantity}
+            onRemoveItem={handleRemoveItem}
+            onPay={() => setShowPayment(true)}
+          />
+        </>
+      )}
 
-      {/* Theme toggle */}
-      <div className="absolute top-3 right-3 z-10">
+      {/* Top-right controls */}
+      <div className="absolute top-3 right-3 z-10 flex items-center gap-2">
+        <button
+          onClick={() => setShowHistory(true)}
+          className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg bg-card border-1.5 border-border text-[11px] font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
+        >
+          <Receipt className="h-3.5 w-3.5" />
+          {t("history")}
+          {paidOrders.length > 0 && (
+            <span className="bg-primary text-primary-foreground text-[9px] font-bold px-1.5 py-0.5 rounded-full min-w-[18px] text-center">
+              {paidOrders.length}
+            </span>
+          )}
+        </button>
         <ThemeToggle />
       </div>
 
@@ -228,6 +271,10 @@ const TabletPOS: React.FC = () => {
           onClose={() => setShowPayment(false)}
           onComplete={handlePaymentComplete}
         />
+      )}
+
+      {showHistory && (
+        <OrderHistory orders={paidOrders} onClose={() => setShowHistory(false)} />
       )}
     </div>
   );
