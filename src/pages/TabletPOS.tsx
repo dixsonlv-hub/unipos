@@ -218,6 +218,16 @@ const TabletPOS: React.FC = () => {
     });
   }, []);
 
+  const handleReserveTable = useCallback((tableId: string, guestName: string, guestCount: number) => {
+    setTables(prev => prev.map(t =>
+      t.id === tableId ? { ...t, status: "reserved" as const, guestCount } : t
+    ));
+  }, []);
+
+  const handleSeatReserved = useCallback((tableId: string) => {
+    handleSelectTable(tableId);
+  }, [handleSelectTable]);
+
   return (
     <div className="flex h-screen bg-background overflow-hidden relative">
       <FloorPanel
@@ -228,6 +238,8 @@ const TabletPOS: React.FC = () => {
         onTransferTable={handleTransferTable}
         onMergeTables={handleMergeTables}
         onSplitTable={handleSplitTable}
+        onReserveTable={handleReserveTable}
+        onSeatReserved={handleSeatReserved}
         isFullscreen={floorFullscreen}
         onToggleFullscreen={() => setFloorFullscreen(f => !f)}
       />
