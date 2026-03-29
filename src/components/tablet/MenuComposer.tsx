@@ -66,7 +66,7 @@ export const MenuComposer: React.FC<MenuComposerProps> = ({ onAddItem, selectedT
   return (
     <div className="flex-1 flex flex-col bg-background min-w-0">
       {/* Header */}
-      <div className="px-5 py-3 border-b border-border bg-card flex items-center gap-4">
+      <div className="px-5 py-3 border-b border-border bg-card flex items-center gap-4 border-0 border-none">
         <div className="flex-1">
           {selectedTable ? (
             <div className="flex items-center gap-2">
