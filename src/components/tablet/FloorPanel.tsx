@@ -16,6 +16,8 @@ interface FloorPanelProps {
   onTransferTable?: (fromId: string, toId: string) => void;
   onMergeTables?: (tableIds: string[]) => void;
   onSplitTable?: (tableId: string, count: number) => void;
+  onReserveTable?: (tableId: string, guestName: string, guestCount: number) => void;
+  onSeatReserved?: (tableId: string) => void;
   isFullscreen?: boolean;
   onToggleFullscreen?: () => void;
 }
@@ -34,6 +36,7 @@ const allStatuses: TableStatus[] = ["available", "reserved", "ordering", "ordere
 export const FloorPanel: React.FC<FloorPanelProps> = ({
   tables, selectedTableId, onSelectTable, onCreateWalkIn,
   onTransferTable, onMergeTables, onSplitTable,
+  onReserveTable, onSeatReserved,
   isFullscreen, onToggleFullscreen,
 }) => {
   const { t } = useLanguage();
@@ -42,6 +45,9 @@ export const FloorPanel: React.FC<FloorPanelProps> = ({
   const [tableAction, setTableAction] = useState<TableAction>(null);
   const [mergeTargets, setMergeTargets] = useState<string[]>([]);
   const [splitCount, setSplitCount] = useState(2);
+  const [showReserve, setShowReserve] = useState(false);
+  const [reserveName, setReserveName] = useState("");
+  const [reserveCount, setReserveCount] = useState(2);
 
   const filteredTables = tables.filter(t => {
     if (activeZone !== "All" && t.zone !== activeZone) return false;
