@@ -10,9 +10,8 @@ const statusConfig: Record<string, { label: string; border: string; bg: string; 
 
 function getElapsedMin(firedAt?: string) {
   if (!firedAt) return 0;
-  // Simulate elapsed for demo
   const fired = new Date(firedAt).getTime();
-  const now = new Date("2024-01-15T12:55:00").getTime();
+  const now = Date.now();
   return Math.max(0, Math.round((now - fired) / 60000));
 }
 
