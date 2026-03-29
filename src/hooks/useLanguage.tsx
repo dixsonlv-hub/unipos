@@ -137,12 +137,21 @@ const dict: Record<Lang, Record<string, string>> = {
     paid_via: "paid via",
     done: "Done",
     discount: "Discount",
+    promo_code: "Promo Code",
+    apply: "Apply",
+    split_bill: "Split Bill",
 
     // History
     history: "History",
     order_history: "Order History",
     order_detail: "Order Detail",
     no_history: "No completed orders yet",
+
+    // Reservation
+    reserve_table: "Reserve Table",
+    seat_guests: "Seat Guests",
+    guest_name: "Guest Name",
+    guest_count_label: "Guest Count",
   },
   zh: {
     tables: "桌位",
@@ -264,11 +273,19 @@ const dict: Record<Lang, Record<string, string>> = {
     paid_via: "通过",
     done: "完成",
     discount: "折扣",
+    promo_code: "优惠码",
+    apply: "应用",
+    split_bill: "拆单",
 
     history: "历史",
     order_history: "交易历史",
     order_detail: "交易详情",
     no_history: "暂无已完成订单",
+
+    reserve_table: "预定桌位",
+    seat_guests: "入座",
+    guest_name: "客人姓名",
+    guest_count_label: "人数",
   },
 };
 

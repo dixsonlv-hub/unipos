@@ -1,6 +1,7 @@
-import React from "react";
-import { Minus, Plus, Trash2, Users, UtensilsCrossed } from "lucide-react";
+import React, { useState } from "react";
+import { Minus, Plus, Trash2, Users, UtensilsCrossed, Percent, TicketPercent, SplitSquareVertical } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { cn } from "@/lib/utils";
 import { type Order, type Table } from "@/data/mock-data";
 import { useLanguage } from "@/hooks/useLanguage";
 
@@ -10,10 +11,16 @@ interface CheckPanelProps {
   onUpdateQuantity: (itemId: string, delta: number) => void;
   onRemoveItem: (itemId: string) => void;
   onPay: () => void;
+  onApplyDiscount?: (amount: number) => void;
 }
 
-export const CheckPanel: React.FC<CheckPanelProps> = ({ order, table, onUpdateQuantity, onRemoveItem, onPay }) => {
+export const CheckPanel: React.FC<CheckPanelProps> = ({ order, table, onUpdateQuantity, onRemoveItem, onPay, onApplyDiscount }) => {
   const { t } = useLanguage();
+  const [promoCode, setPromoCode] = useState("");
+  const [promoApplied, setPromoApplied] = useState(false);
+  const [manualDiscount, setManualDiscount] = useState(0);
+  const [showSplit, setShowSplit] = useState(false);
+  const [splitCount, setSplitCount] = useState(2);
 
   if (!order) {
     return (
@@ -23,6 +30,26 @@ export const CheckPanel: React.FC<CheckPanelProps> = ({ order, table, onUpdateQu
       </div>
     );
   }
+
+  const discountAmount = manualDiscount + (promoApplied ? order.subtotal * 0.1 : 0);
+  const adjustedSubtotal = Math.max(0, order.subtotal - discountAmount);
+  const serviceCharge = Math.round(adjustedSubtotal * 0.1 * 100) / 100;
+  const gst = Math.round((adjustedSubtotal + serviceCharge) * 0.09 * 100) / 100;
+  const total = Math.round((adjustedSubtotal + serviceCharge + gst) * 100) / 100;
+  const splitAmount = showSplit ? Math.round((total / splitCount) * 100) / 100 : 0;
+
+  const handleApplyPromo = () => {
+    if (promoCode.toLowerCase() === "welcome10" || promoCode.toLowerCase() === "vip10") {
+      setPromoApplied(true);
+    }
+  };
+
+  const handlePresetDiscount = (type: "10%" | "20%" | "$5" | "$10") => {
+    if (type === "10%") setManualDiscount(Math.round(order.subtotal * 0.1 * 100) / 100);
+    else if (type === "20%") setManualDiscount(Math.round(order.subtotal * 0.2 * 100) / 100);
+    else if (type === "$5") setManualDiscount(5);
+    else if (type === "$10") setManualDiscount(10);
+  };
 
   return (
     <div className="w-80 bg-card border-l border-border flex flex-col shrink-0">
@@ -68,23 +95,17 @@ export const CheckPanel: React.FC<CheckPanelProps> = ({ order, table, onUpdateQu
                   <div className="text-[11px] text-status-amber mt-0.5">📝 {item.notes}</div>
                 )}
                 <div className="flex items-center gap-1.5 mt-1.5">
-                  <button
-                    onClick={() => onUpdateQuantity(item.id, -1)}
-                    className="w-6 h-6 rounded-md bg-accent flex items-center justify-center hover:bg-secondary transition-colors"
-                  >
+                  <button onClick={() => onUpdateQuantity(item.id, -1)}
+                    className="w-6 h-6 rounded-md bg-accent flex items-center justify-center hover:bg-secondary transition-colors">
                     <Minus className="h-3 w-3 text-foreground" />
                   </button>
                   <span className="text-xs font-semibold text-foreground w-5 text-center">{item.quantity}</span>
-                  <button
-                    onClick={() => onUpdateQuantity(item.id, 1)}
-                    className="w-6 h-6 rounded-md bg-accent flex items-center justify-center hover:bg-secondary transition-colors"
-                  >
+                  <button onClick={() => onUpdateQuantity(item.id, 1)}
+                    className="w-6 h-6 rounded-md bg-accent flex items-center justify-center hover:bg-secondary transition-colors">
                     <Plus className="h-3 w-3 text-foreground" />
                   </button>
-                  <button
-                    onClick={() => onRemoveItem(item.id)}
-                    className="w-6 h-6 rounded-md flex items-center justify-center text-destructive opacity-0 group-hover:opacity-100 hover:bg-destructive/10 transition-all ml-auto"
-                  >
+                  <button onClick={() => onRemoveItem(item.id)}
+                    className="w-6 h-6 rounded-md flex items-center justify-center text-destructive opacity-0 group-hover:opacity-100 hover:bg-destructive/10 transition-all ml-auto">
                     <Trash2 className="h-3 w-3" />
                   </button>
                 </div>
@@ -94,32 +115,83 @@ export const CheckPanel: React.FC<CheckPanelProps> = ({ order, table, onUpdateQu
         )}
       </div>
 
+      {/* Discount Section */}
+      {order.items.length > 0 && (
+        <div className="px-4 py-2 border-t border-border space-y-2">
+          {/* Promo Code */}
+          <div className="flex gap-1.5">
+            <input placeholder={t("promo_code")} value={promoCode} onChange={e => setPromoCode(e.target.value)}
+              className="flex-1 h-7 px-2.5 rounded-md bg-background border-1.5 border-border text-[11px] text-foreground placeholder:text-muted-foreground focus:outline-none focus:border-primary" />
+            <button onClick={handleApplyPromo}
+              className={cn("px-2.5 h-7 rounded-md text-[10px] font-semibold transition-colors",
+                promoApplied ? "bg-status-green-light text-status-green" : "bg-accent text-muted-foreground hover:bg-secondary"
+              )}>
+              {promoApplied ? "✓" : t("apply")}
+            </button>
+          </div>
+          {/* Preset Discounts */}
+          <div className="flex gap-1">
+            {(["10%", "20%", "$5", "$10"] as const).map(d => (
+              <button key={d} onClick={() => handlePresetDiscount(d)}
+                className={cn("flex-1 h-6 rounded-md text-[10px] font-semibold transition-colors",
+                  (d === "10%" && manualDiscount === Math.round(order.subtotal * 0.1 * 100) / 100) ||
+                  (d === "20%" && manualDiscount === Math.round(order.subtotal * 0.2 * 100) / 100) ||
+                  (d === "$5" && manualDiscount === 5) ||
+                  (d === "$10" && manualDiscount === 10)
+                    ? "bg-primary text-primary-foreground" : "bg-accent text-muted-foreground hover:bg-secondary"
+                )}>
+                {d}
+              </button>
+            ))}
+            {manualDiscount > 0 && (
+              <button onClick={() => setManualDiscount(0)} className="h-6 px-2 rounded-md text-[10px] font-semibold bg-status-red-light text-destructive">✕</button>
+            )}
+          </div>
+          {/* Split Bill */}
+          <button onClick={() => setShowSplit(!showSplit)} className="flex items-center gap-1.5 text-[11px] text-muted-foreground hover:text-foreground">
+            <SplitSquareVertical className="h-3 w-3" />{t("split_bill")}
+          </button>
+          {showSplit && (
+            <div className="flex items-center gap-2">
+              <span className="text-[11px] text-muted-foreground">{t("split_into")}</span>
+              {[2, 3, 4].map(n => (
+                <button key={n} onClick={() => setSplitCount(n)}
+                  className={cn("w-6 h-6 rounded-md text-xs font-bold",
+                    splitCount === n ? "bg-primary text-primary-foreground" : "bg-accent text-foreground"
+                  )}>{n}</button>
+              ))}
+              <span className="text-[11px] font-mono text-foreground ml-auto">${splitAmount.toFixed(2)} ea</span>
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Totals & Pay */}
       <div className="border-t border-border p-4 space-y-2">
         <div className="flex justify-between text-[13px] text-muted-foreground">
           <span>{t("subtotal")}</span>
           <span className="font-mono">${order.subtotal.toFixed(2)}</span>
         </div>
+        {discountAmount > 0 && (
+          <div className="flex justify-between text-[13px] text-status-green">
+            <span>{t("discount")}</span>
+            <span className="font-mono">-${discountAmount.toFixed(2)}</span>
+          </div>
+        )}
         <div className="flex justify-between text-[13px] text-muted-foreground">
           <span>{t("service_charge")} (10%)</span>
-          <span className="font-mono">${order.serviceCharge.toFixed(2)}</span>
+          <span className="font-mono">${serviceCharge.toFixed(2)}</span>
         </div>
         <div className="flex justify-between text-[13px] text-muted-foreground">
           <span>{t("gst")}</span>
-          <span className="font-mono">${order.gst.toFixed(2)}</span>
+          <span className="font-mono">${gst.toFixed(2)}</span>
         </div>
         <div className="flex justify-between text-base font-bold text-foreground pt-2 border-t border-border">
           <span>{t("total")}</span>
-          <span className="font-mono">${order.total.toFixed(2)}</span>
+          <span className="font-mono">${total.toFixed(2)}</span>
         </div>
-        <Button
-          variant="pay"
-          size="xl"
-          className="w-full mt-2 rounded-lg"
-          disabled={order.items.length === 0}
-          onClick={onPay}
-        >
-          {t("pay")} ${order.total.toFixed(2)}
+        <Button variant="pay" size="xl" className="w-full mt-2 rounded-lg" disabled={order.items.length === 0} onClick={onPay}>
+          {t("pay")} ${total.toFixed(2)}
         </Button>
       </div>
     </div>
