@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Search, ShoppingBag, Truck, ArrowRightLeft, Merge, Split, X, Check, Users, Maximize2, Minimize2 } from "lucide-react";
+import { Search, ShoppingBag, Truck, ArrowRightLeft, Merge, Split, X, Check, Users, Maximize2, Minimize2, CalendarPlus, UserCheck } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { type Table, type TableStatus, type ServiceMode, zones } from "@/data/mock-data";
@@ -265,30 +265,56 @@ export const FloorPanel: React.FC<FloorPanelProps> = ({
 
       {/* Table Actions */}
       {showActions && !isFullscreen && (
-        <div className="px-3 py-2 border-t border-border">
+        <div className="px-3 py-2 border-t border-border space-y-1.5">
           <div className="flex gap-1">
-            <button
-              onClick={() => setTableAction("transfer")}
-              className="flex-1 flex flex-col items-center gap-0.5 py-1.5 rounded-md text-[10px] font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-            >
-              <ArrowRightLeft className="h-3.5 w-3.5" />
-              {t("transfer_table")}
+            <button onClick={() => setTableAction("transfer")}
+              className="flex-1 flex flex-col items-center gap-0.5 py-1.5 rounded-md text-[10px] font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
+              <ArrowRightLeft className="h-3.5 w-3.5" />{t("transfer_table")}
             </button>
-            <button
-              onClick={() => { setTableAction("merge"); setMergeTargets(selectedTableId ? [selectedTableId] : []); }}
-              className="flex-1 flex flex-col items-center gap-0.5 py-1.5 rounded-md text-[10px] font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-            >
-              <Merge className="h-3.5 w-3.5" />
-              {t("merge_tables")}
+            <button onClick={() => { setTableAction("merge"); setMergeTargets(selectedTableId ? [selectedTableId] : []); }}
+              className="flex-1 flex flex-col items-center gap-0.5 py-1.5 rounded-md text-[10px] font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
+              <Merge className="h-3.5 w-3.5" />{t("merge_tables")}
             </button>
-            <button
-              onClick={() => setTableAction("split")}
-              className="flex-1 flex flex-col items-center gap-0.5 py-1.5 rounded-md text-[10px] font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors"
-            >
-              <Split className="h-3.5 w-3.5" />
-              {t("split_table")}
+            <button onClick={() => setTableAction("split")}
+              className="flex-1 flex flex-col items-center gap-0.5 py-1.5 rounded-md text-[10px] font-medium text-muted-foreground hover:bg-accent hover:text-foreground transition-colors">
+              <Split className="h-3.5 w-3.5" />{t("split_table")}
             </button>
           </div>
+          {/* Reserve / Seat actions for specific statuses */}
+          {selectedTable?.status === "available" && onReserveTable && (
+            <div>
+              {showReserve ? (
+                <div className="space-y-1.5 p-2 bg-accent/50 rounded-md">
+                  <input placeholder={t("guest_name")} value={reserveName} onChange={e => setReserveName(e.target.value)}
+                    className="w-full h-7 px-2.5 rounded-md bg-background border-1.5 border-border text-[11px] text-foreground focus:outline-none focus:border-primary" />
+                  <div className="flex items-center gap-1.5">
+                    <span className="text-[10px] text-muted-foreground">{t("guest_count_label")}:</span>
+                    {[2, 4, 6, 8].map(n => (
+                      <button key={n} onClick={() => setReserveCount(n)}
+                        className={cn("w-6 h-6 rounded text-[10px] font-bold",
+                          reserveCount === n ? "bg-primary text-primary-foreground" : "bg-accent text-foreground"
+                        )}>{n}</button>
+                    ))}
+                    <button onClick={() => {
+                      onReserveTable(selectedTableId!, reserveName || "Guest", reserveCount);
+                      setShowReserve(false); setReserveName("");
+                    }} className="ml-auto p-1 rounded bg-primary text-primary-foreground">
+                      <Check className="h-3 w-3" />
+                    </button>
+                  </div>
+                </div>
+              ) : (
+                <Button variant="outline" size="sm" className="w-full justify-start gap-2 text-xs rounded-lg" onClick={() => setShowReserve(true)}>
+                  <CalendarPlus className="h-3.5 w-3.5" />{t("reserve_table")}
+                </Button>
+              )}
+            </div>
+          )}
+          {selectedTable?.status === "reserved" && onSeatReserved && (
+            <Button variant="default" size="sm" className="w-full justify-start gap-2 text-xs rounded-lg" onClick={() => onSeatReserved(selectedTableId!)}>
+              <UserCheck className="h-3.5 w-3.5" />{t("seat_guests")}
+            </Button>
+          )}
         </div>
       )}
 
