@@ -152,6 +152,25 @@ export function recordVisit(id: string, amount: number) {
   emit();
 }
 
+export function findCustomerByPhone(phone: string): Customer | undefined {
+  const clean = phone.replace(/\s/g, "");
+  return customers.find(c => c.phone.replace(/\s/g, "").endsWith(clean) || c.phone.replace(/\s/g, "") === clean);
+}
+
+export function registerCustomer(phone: string, email: string, nickname: string): Customer {
+  const id = `c${Date.now()}`;
+  const now = new Date().toISOString().split("T")[0];
+  const newCustomer: Customer = {
+    id, name: nickname, phone: `+65 ${phone}`, email,
+    tags: ["qr-signup"], visits: 0, points: 0, totalSpend: 0,
+    averageTicket: 0, tier: "bronze", segment: "new",
+    preferredItems: [], notes: "", lastVisit: now, createdAt: now,
+    pointsHistory: [],
+  };
+  addCustomer(newCustomer);
+  return newCustomer;
+}
+
 export function useCustomers() {
   return useSyncExternalStore(
     (cb) => { listeners.add(cb); return () => listeners.delete(cb); },

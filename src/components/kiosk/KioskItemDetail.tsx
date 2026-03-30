@@ -15,7 +15,7 @@ export const KioskItemDetail: React.FC<Props> = ({ item, lang, onAdd, onClose })
   const [comboSel, setComboSel] = useState<Record<string, string[]>>({});
   const [notes, setNotes] = useState("");
 
-  const groups = modifierGroups.filter(g => item.modifierGroupIds?.includes(g.id));
+  const groups = modifierGroups.filter(g => item.modifierGroups?.includes(g.id));
 
   const toggle = (gId: string, oId: string, multi: boolean) => {
     setSelected(prev => {
@@ -35,7 +35,7 @@ export const KioskItemDetail: React.FC<Props> = ({ item, lang, onAdd, onClose })
   };
 
   const modValid = groups.filter(g => g.required).every(g => (selected[g.id]?.length || 0) > 0);
-  const comboValid = !item.comboGroups || item.comboGroups.every(g => (comboSel[g.id]?.length || 0) === (g.maxSelect || g.itemIds.length));
+  const comboValid = !item.comboGroups || item.comboGroups.every(g => (comboSel[g.id]?.length || 0) === (g.maxSelect || g.allowedItems.length));
   const canAdd = modValid && comboValid;
 
   const handleAdd = () => {
@@ -80,14 +80,14 @@ export const KioskItemDetail: React.FC<Props> = ({ item, lang, onAdd, onClose })
           {/* Combo groups */}
           {item.comboGroups?.map(g => (
             <div key={g.id} className="mb-6">
-              <h3 className="text-xl font-semibold mb-3">{g.name} <span className="text-base text-muted-foreground">({lang === "en" ? "Select" : "选择"} {g.maxSelect || g.itemIds.length})</span></h3>
+            <h3 className="text-xl font-semibold mb-3">{g.name} <span className="text-base text-muted-foreground">({lang === "en" ? "Select" : "选择"} {g.maxSelect || g.allowedItems.length})</span></h3>
               <div className="grid grid-cols-2 gap-3">
-                {g.itemIds.map(iId => {
+                {g.allowedItems.map(iId => {
                   const mi = menuItems.find(m => m.id === iId);
                   if (!mi) return null;
                   const isSel = (comboSel[g.id] || []).includes(iId);
                   return (
-                    <button key={iId} onClick={() => toggleCombo(g.id, iId, g.maxSelect || g.itemIds.length)}
+                    <button key={iId} onClick={() => toggleCombo(g.id, iId, g.maxSelect || g.allowedItems.length)}
                       className={`p-4 rounded-2xl border-2 text-left transition-all ${isSel ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"}`}>
                       <div className="flex items-center justify-between">
                         <span className="text-lg font-medium">{lang === "zh" && mi.nameZh ? mi.nameZh : mi.name}</span>

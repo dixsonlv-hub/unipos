@@ -57,7 +57,7 @@ export const QRMenuBrowser: React.FC<Props> = ({ cart, onAddToCart, onOpenCart }
 
   const handleAdd = () => {
     if (!detailItem) return;
-    const groups = modifierGroups.filter(g => detailItem.modifierGroupIds?.includes(g.id));
+    const groups = modifierGroups.filter(g => detailItem.modifierGroups?.includes(g.id));
     const mods = groups.flatMap(g => (selected[g.id] || []).map(oId => {
       const opt = g.options.find(o => o.id === oId)!;
       return { name: opt.name, price: opt.price };
@@ -106,7 +106,7 @@ export const QRMenuBrowser: React.FC<Props> = ({ cart, onAddToCart, onOpenCart }
             )}
             <div className="p-3">
               <div className="flex items-start gap-1">
-                {item.popular && <Star className="w-3 h-3 text-amber-400 mt-0.5 fill-amber-400 shrink-0" />}
+                {item.popular && <Star className="w-3 h-3 text-primary mt-0.5 fill-primary shrink-0" />}
                 <h3 className="text-sm font-semibold text-foreground line-clamp-2">{item.name}</h3>
               </div>
               <p className="text-sm font-bold text-primary mt-1">${item.price.toFixed(2)}</p>
@@ -144,7 +144,7 @@ export const QRMenuBrowser: React.FC<Props> = ({ cart, onAddToCart, onOpenCart }
               <p className="text-xl font-bold text-primary mt-1">${detailItem.price.toFixed(2)}</p>
 
               {/* Modifiers */}
-              {modifierGroups.filter(g => detailItem.modifierGroupIds?.includes(g.id)).map(g => (
+              {modifierGroups.filter(g => detailItem.modifierGroups?.includes(g.id)).map(g => (
                 <div key={g.id} className="mt-4">
                   <h3 className="text-sm font-semibold mb-2">{g.name} {g.required && <span className="text-destructive text-xs">(Required)</span>}</h3>
                   <div className="space-y-2">
