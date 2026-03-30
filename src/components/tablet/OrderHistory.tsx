@@ -6,7 +6,7 @@ import { useLanguage } from "@/hooks/useLanguage";
 export interface PaidOrder {
   id: string;
   tableNumber?: string;
-  serviceMode: "dine-in" | "takeaway" | "delivery" | "pickup";
+  serviceMode: "dine-in" | "takeaway" | "delivery" | "pickup" | "kiosk" | "qr";
   items: { name: string; quantity: number; price: number; modifiers: { name: string; price: number }[] }[];
   subtotal: number;
   discount: number;
