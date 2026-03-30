@@ -1,205 +1,133 @@
 
 
-# Comprehensive POS Upgrade Plan
+# Add Kiosk Self-Ordering & QR Table Ordering
 
-## Summary
+## Overview
 
-Sync updates from the `poslick` GitHub repo into the current project, upgrade all business logic to commercial standards, and add 4 new major modules: Inventory Management, Professional CRM, Floor Plan Editor, and Queue Management.
+Add two new customer-facing ordering surfaces alongside existing Tablet/Mobile/Admin:
+1. **Kiosk** (`/kiosk`) — Vertical 1080p/4K touch screen for self-service ordering + payment, McDonald's-style collection number
+2. **QR Ordering** (`/qr`) — Mobile browser for scan-to-order at table, with optional pre-pay or pay-later (merchant-configurable)
 
----
-
-## Part A: Sync from GitHub Repo
-
-The GitHub repo has several improvements not yet in this project:
-
-### A1. State Management Layer
-- Create `src/state/menu-store.ts` — reactive menu item store using `useSyncExternalStore` with CRUD operations (`useMenuItems`, `addMenuItemToStore`, `updateMenuItemInStore`, `deleteMenuItemFromStore`, `getMenuItemsSnapshot`)
-- Create `src/state/pricing-store.ts` — pricing strategy engine with time-based/category-based discount rules, conflict detection, and CRUD
-
-### A2. Promotions Module
-- Create `src/pages/admin/AdminPromotions.tsx` (~644 lines) — full promotion management with types (discount, BOGO, gift, coupon, loyalty, happy hour), pricing strategy editor with time windows/weekday targeting, conflict detection UI
-- Add route `/admin/promotions` in `App.tsx`
-- Add "Promotions" nav item (Tag icon) in `AdminLayout.tsx`
-
-### A3. Order History Refactor
-- Create `src/components/tablet/history/types.ts` — `PaidOrder` type with `cashReceived`/`changeDue` fields
-- Create `src/components/tablet/history/OrderHistoryList.tsx` — searchable, filterable list with payment method filter pills
-- Create `src/components/tablet/history/OrderHistoryDetail.tsx` — full receipt view with breakdown
-- Refactor `OrderHistory.tsx` to use these sub-components
-
-### A4. TabletPOS Upgrades
-- Add resizable panel widths with drag handles (left/right panels)
-- Add `generateMockHistory()` for 30 pre-seeded demo orders
-- Add reserved table seating flow (`handleSeatReserved`)
-- Add table reservation (`handleReserveTable`)
-- Pass `onSeatReserved` and `onReserveTable` to FloorPanel
-
-### A5. CheckPanel Upgrades
-- Add promo code input and validation
-- Add manual discount presets (10%, 20%, $5, $10)
-- Add member detection toggle
-- Add bill split functionality
-- Discounts properly reduce total with correct service charge/GST recalc
-
-### A6. PaymentSheet Upgrades
-- Add QR payment sub-methods (Alipay, WeChat Pay, PayNow)
-- Cash numpad with quick-amount buttons
-- Pass `cashReceived`/`changeDue` to payment completion
-- Proper `onComplete(method, cashReceived)` signature
-
-### A7. FloorPanel Upgrades
-- Add reserve table dialog with guest count and customer name
-- Add "Seat Guests" button for reserved tables
-- Pass through `onSeatReserved` and `onReserveTable` callbacks
-
-### A8. AdminMenu Upgrade
-- Use `useMenuItems()` from menu-store instead of static imports
-- Full inline editor for items: name (EN/ZH), price, category, availability, popularity, description
-- Combo group editor: add/remove groups, set required count, manage allowed items
-- Create new items and delete existing ones
-
-### A9. AdminCRM
-- Add functional search filter (currently search input is non-functional)
-
-### A10. AdminKDS
-- Fix `getElapsedMin` to use `Date.now()` instead of hardcoded date
+Plus: QR Ordering as a member registration channel (phone OTP / email OTP / nickname), with points earned per order.
 
 ---
 
-## Part B: Business Logic Standardization
+## 1. Kiosk Self-Ordering (`/kiosk`)
 
-### B1. Financial Calculations
-- Ensure all monetary values use 2-decimal rounding consistently
-- Service charge: 10% on subtotal (after discounts)
-- GST: 9% on (subtotal + service charge) — Singapore standard
-- Discount applied before service charge/GST calculation
-- Split bill divides total equally with rounding correction on last share
+**New file**: `src/pages/KioskOrdering.tsx`
 
-### B2. Order Lifecycle
-- Clear state machine: `open` → `sent` → `preparing` → `ready` → `served` → `paid`
-- Void requires manager PIN
-- Paid orders release table to "dirty" status
-- Table cleaning flow: dirty → cleaning → available
+- **Layout**: Full-height vertical screen, optimized for touch (large buttons, 48px+ tap targets)
+- **Flow**: Welcome → Choose Dine-in/Takeaway → Browse Menu (categories + items grid) → Item detail with modifiers/combos → Cart sidebar → Payment (card/QR) → Collection Number screen
+- **Collection Number**: Auto-incrementing daily counter stored in a kiosk-store. After payment, show large collection number (e.g. "#A023") with estimated prep time
+- **UI scale**: All text/buttons sized for 1080p vertical (1080×1920). Use `text-2xl`+ for headings, large item cards with prominent images
+- **No table assignment** — orders tagged as `serviceMode: "kiosk"` with a collection number
 
-### B3. Inventory Deduction (new)
-- When order status changes to "sent", deduct ingredient quantities
-- Low stock alerts when below reorder point
+**New file**: `src/state/kiosk-store.ts`
+- Track daily collection counter, reset logic
+- Active kiosk cart state
 
----
-
-## Part C: New Modules
-
-### C1. Inventory Management (`/admin/inventory`)
-- **Data model**: `InventoryItem` with fields: id, name, nameZh, sku, category (Raw Ingredients / Packaging / Beverages / Supplies), unit (kg/L/pcs/box), currentStock, reorderPoint, costPerUnit, supplier, lastRestocked, expiryDate
-- **State store**: `src/state/inventory-store.ts` with reactive store pattern matching menu-store
-- **Admin page**: `src/pages/admin/AdminInventory.tsx`
-  - KPI cards: Total SKUs, Low Stock Alerts, Total Value, Items Expiring Soon
-  - Tabbed view: Stock List / Purchase Orders / Stock Movement Log
-  - Stock list: searchable table with stock level progress bars, color-coded status (In Stock / Low / Out of Stock / Expiring)
-  - Inline stock adjustment (receive/waste/transfer) with reason codes
-  - Purchase order creation with supplier, items, quantities, expected delivery
-  - Stock movement history with timestamps and audit trail
-- **Menu-Inventory linking**: Each MenuItem can reference ingredient IDs and quantities needed per serving
-
-### C2. Professional CRM (`/admin/crm` upgrade)
-- **Data model expansion**: Add to Customer type: `dateOfBirth`, `address`, `tags[]`, `totalSpend`, `averageTicket`, `preferredItems[]`, `notes`, `createdAt`, `segment` (new/regular/VIP/at-risk/churned)
-- **State store**: `src/state/customer-store.ts`
-- **Complete CRM page rewrite**:
-  - KPI dashboard: Total Customers, New This Month, Average Spend, Retention Rate
-  - Customer segments with auto-classification based on visit frequency and spend
-  - Customer detail panel (click to expand): full profile, visit history timeline, spend analytics, preference tags, notes
-  - Customer search by name/phone/email/membership ID
-  - Bulk actions: send promotion, update tier, export
-  - Loyalty program: points balance, tier progression (Bronze → Silver → Gold → Platinum), point history
-  - Birthday/anniversary tracking with upcoming list
-
-### C3. Floor Plan Editor (`/admin/floorplan`)
-- **Admin page**: `src/pages/admin/AdminFloorPlan.tsx`
-  - Drag-and-drop table placement on a grid canvas
-  - Table shapes: round (2-4 pax), square (4 pax), rectangular (6-8 pax), booth (4-6 pax)
-  - Add/remove/resize tables
-  - Zone management: create/rename/reorder zones
-  - Snap-to-grid with alignment guides
-  - Save layout per zone
-  - Preview mode showing real-time table status overlay
-- **State store**: `src/state/floorplan-store.ts` storing table positions (`x`, `y`) and dimensions
-- **Integration**: FloorPanel reads positions from floorplan-store for spatial rendering (optional grid view vs list view toggle)
-
-### C4. Queue Management (`/admin/queue` + customer-facing)
-- **Data model**: `QueueEntry` with fields: id, partySize, customerName, customerPhone, estimatedWait, status (waiting/seated/no-show/cancelled), joinedAt, calledAt, seatedAt, notes, preferredZone
-- **State store**: `src/state/queue-store.ts`
-- **Admin page**: `src/pages/admin/AdminQueue.tsx`
-  - Real-time queue board with current wait count and average wait time
-  - Add walk-in to queue with party size and contact
-  - Call next: sends notification (visual + optional SMS placeholder)
-  - Queue entry states: Waiting → Called → Seated / No-Show
-  - Historical stats: average wait time, no-show rate, peak hours
-  - Configurable estimated wait time per party size
-- **Customer-facing kiosk view**: `/queue` route
-  - Clean display showing queue position and estimated wait
-  - Self-service join queue with name and party size
-  - Real-time updates when position changes
+**Sub-components** (in `src/components/kiosk/`):
+- `KioskWelcome.tsx` — Splash with logo + "Start Order" button + language toggle
+- `KioskMenu.tsx` — Category sidebar (vertical) + item grid, reuses menu data
+- `KioskItemDetail.tsx` — Full-screen item view with modifier/combo selection
+- `KioskCart.tsx` — Slide-out cart panel with quantity controls
+- `KioskPayment.tsx` — Card/QR payment simulation
+- `KioskComplete.tsx` — Collection number display with "Done / New Order" button
 
 ---
 
-## Part D: Routes and Navigation
+## 2. QR Table Ordering (`/qr`)
 
-Update `App.tsx` routes:
-```
-/admin/promotions  → AdminPromotions
-/admin/inventory   → AdminInventory
-/admin/floorplan   → AdminFloorPlan
-/admin/queue       → AdminQueue
-/queue             → QueueKiosk (public)
-```
+**New file**: `src/pages/QROrdering.tsx`
 
-Update `AdminLayout.tsx` sidebar:
-- Add Promotions (Tag icon)
-- Add Inventory (Package icon)  
-- Add Floor Plan (Map icon)
-- Add Queue (ListOrdered icon)
+- **Entry**: URL includes table param (e.g. `/qr?table=T5`). If no table param, show table number input
+- **Flow**: Table confirmation → Optional member login/register → Browse menu → Cart + review → Pay now OR "Pay Later at Counter" (based on merchant config)
+- **Mobile-optimized**: Reuses similar menu browsing patterns as MobileMenuScreen but standalone (no staff POS chrome)
+- **Order submission**: Creates order in the system tied to the table, visible in Tablet POS and KDS
 
----
-
-## Files to Create/Modify
-
-**New files (~15):**
-- `src/state/menu-store.ts`
-- `src/state/pricing-store.ts`
-- `src/state/inventory-store.ts`
-- `src/state/customer-store.ts`
-- `src/state/floorplan-store.ts`
-- `src/state/queue-store.ts`
-- `src/components/tablet/history/types.ts`
-- `src/components/tablet/history/OrderHistoryList.tsx`
-- `src/components/tablet/history/OrderHistoryDetail.tsx`
-- `src/pages/admin/AdminPromotions.tsx`
-- `src/pages/admin/AdminInventory.tsx`
-- `src/pages/admin/AdminFloorPlan.tsx`
-- `src/pages/admin/AdminQueue.tsx`
-- `src/pages/QueueKiosk.tsx`
-
-**Modified files (~10):**
-- `src/App.tsx` — new routes
-- `src/pages/admin/AdminLayout.tsx` — new nav items
-- `src/pages/TabletPOS.tsx` — resizable panels, reservation flow, mock history, menu-store integration
-- `src/components/tablet/CheckPanel.tsx` — discounts, promos, split bill
-- `src/components/tablet/PaymentSheet.tsx` — QR methods, cash handling
-- `src/components/tablet/FloorPanel.tsx` — reservation dialog, seat guests
-- `src/components/tablet/OrderHistory.tsx` — delegate to sub-components
-- `src/pages/admin/AdminMenu.tsx` — use menu-store, inline editor
-- `src/pages/admin/AdminCRM.tsx` — complete rewrite with professional CRM
-- `src/pages/admin/AdminKDS.tsx` — fix elapsed time calculation
-- `src/data/mock-data.ts` — expanded Customer type, inventory items
+**Sub-components** (in `src/components/qr/`):
+- `QRTableSelect.tsx` — Confirm/enter table number
+- `QRMemberAuth.tsx` — Login (phone/email OTP) or register (phone OTP → email → nickname) or "Continue as Guest"
+- `QRMenuBrowser.tsx` — Category tabs + item grid + item detail with modifiers
+- `QRCart.tsx` — Review order with totals
+- `QRPayment.tsx` — Pay now (card/QR) or "Pay at Counter" button
+- `QRComplete.tsx` — Order confirmed screen with order number
 
 ---
 
-## Implementation Priority
+## 3. Member Registration via QR (OTP Auth)
 
-Due to the scope, this will be implemented in batches:
-1. State stores + GitHub sync (A1-A10) — foundation
-2. Inventory Management (C1) — new module
-3. Professional CRM (C2) — rewrite existing
-4. Floor Plan Editor (C3) — new module
-5. Queue Management (C4) — new module
+**New file**: `src/components/qr/QRMemberAuth.tsx`
+
+- **Register flow**: Enter phone → receive OTP (simulated) → verify → enter email → email OTP → verify → set nickname → account created in customer-store
+- **Login flow**: Enter phone → OTP → verify → load existing profile
+- **Guest mode**: Skip auth, no points earned
+- **Points integration**: When authenticated member places order, auto-call `addPoints()` from customer-store (1 point per $1 spent)
+
+**Update**: `src/state/customer-store.ts`
+- Add `findByPhone(phone: string)` lookup
+- Add `registerCustomer(phone, email, nickname)` helper
+
+---
+
+## 4. Admin Settings — QR Payment Config
+
+**Update**: `src/pages/admin/AdminSettings.tsx`
+
+Add a new "Ordering Channels" settings card with toggleable options:
+- **QR Ordering**: Enable/Disable
+- **QR Payment Mode**: "Pay First" / "Pay Later" / "Customer Choice" (radio)
+- **Kiosk Mode**: Enable/Disable
+- **Kiosk Payment Methods**: Checkboxes for Card / QR
+
+**New file**: `src/state/settings-store.ts`
+- Store merchant config: `qrEnabled`, `qrPaymentMode` ("pre-pay" | "post-pay" | "choice"), `kioskEnabled`, `kioskPaymentMethods`
+- Used by QR and Kiosk pages to determine flow behavior
+
+---
+
+## 5. ServiceMode & Data Updates
+
+**Update**: `src/data/mock-data.ts`
+- Add `"kiosk"` and `"qr"` to `ServiceMode` type
+
+**Update**: `src/hooks/useLanguage.tsx`
+- Add i18n entries for kiosk and QR ordering screens (EN + ZH)
+
+---
+
+## 6. Routing & Navigation
+
+**Update**: `src/App.tsx`
+- Add `/kiosk` → `KioskOrdering`
+- Add `/qr` → `QROrdering`
+
+**Update**: `src/pages/Index.tsx`
+- Add Kiosk and QR cards to the surface selector (5 options: Tablet, Mobile, Kiosk, QR, Admin)
+
+---
+
+## Files Summary
+
+**New (~12 files)**:
+- `src/pages/KioskOrdering.tsx`
+- `src/pages/QROrdering.tsx`
+- `src/state/kiosk-store.ts`
+- `src/state/settings-store.ts`
+- `src/components/kiosk/KioskWelcome.tsx`
+- `src/components/kiosk/KioskMenu.tsx`
+- `src/components/kiosk/KioskItemDetail.tsx`
+- `src/components/kiosk/KioskCart.tsx`
+- `src/components/kiosk/KioskPayment.tsx`
+- `src/components/kiosk/KioskComplete.tsx`
+- `src/components/qr/QRMemberAuth.tsx`
+- `src/components/qr/QRMenuBrowser.tsx`
+
+**Modified (~6 files)**:
+- `src/App.tsx` — routes
+- `src/pages/Index.tsx` — surface cards
+- `src/data/mock-data.ts` — ServiceMode type
+- `src/state/customer-store.ts` — findByPhone, registerCustomer
+- `src/pages/admin/AdminSettings.tsx` — ordering channel config
+- `src/hooks/useLanguage.tsx` — i18n strings
 
