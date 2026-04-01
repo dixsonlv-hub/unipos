@@ -1,6 +1,6 @@
 import React from "react";
-import { Building2, CreditCard, Globe, Bell, MonitorSmartphone, QrCode } from "lucide-react";
-import { useSettings, updateSettings, type QRPaymentMode } from "@/state/settings-store";
+import { Building2, CreditCard, Globe, Bell, MonitorSmartphone, QrCode, Store, UtensilsCrossed } from "lucide-react";
+import { useSettings, updateSettings, type QRPaymentMode, type ServiceType } from "@/state/settings-store";
 
 const AdminSettings: React.FC = () => {
   const settings = useSettings();
@@ -12,7 +12,44 @@ const AdminSettings: React.FC = () => {
         <p className="text-[13px] text-muted-foreground mt-1">Configure your outlet</p>
       </div>
 
+      {/* Service Mode */}
+      <h2 className="text-lg font-bold text-foreground mb-4">Service Mode</h2>
+      <div className="uniweb-card p-5 mb-8">
+        <div className="flex items-center gap-3 mb-4">
+          <div className="w-11 h-11 rounded-[11px] bg-primary/10 flex items-center justify-center">
+            <Store className="h-5 w-5 text-primary" />
+          </div>
+          <div>
+            <h3 className="font-semibold text-foreground text-[13px]">Order Flow Mode</h3>
+            <p className="text-[11px] text-muted-foreground">Controls the payment and kitchen workflow</p>
+          </div>
+        </div>
+        <div className="space-y-3">
+          {([
+            { value: "fast-food" as ServiceType, label: "Fast Food", icon: "🍔", desc: "Pay first → Fire to kitchen. Customers pay before food is prepared." },
+            { value: "restaurant" as ServiceType, label: "Restaurant", icon: "🍽️", desc: "Fire to kitchen → Eat → Pay. Customers order, eat, then pay at the end." },
+          ]).map(opt => (
+            <label key={opt.value} className={`flex items-start gap-3 p-3 rounded-lg border cursor-pointer transition-all ${
+              settings.serviceType === opt.value ? "border-primary bg-primary/5" : "border-border hover:border-primary/30"
+            }`}>
+              <input
+                type="radio"
+                name="service-type"
+                checked={settings.serviceType === opt.value}
+                onChange={() => updateSettings({ serviceType: opt.value })}
+                className="text-primary mt-1"
+              />
+              <div>
+                <span className="text-sm font-semibold text-foreground">{opt.icon} {opt.label}</span>
+                <p className="text-[11px] text-muted-foreground mt-0.5">{opt.desc}</p>
+              </div>
+            </label>
+          ))}
+        </div>
+      </div>
+
       {/* General settings */}
+      <h2 className="text-lg font-bold text-foreground mb-4">General</h2>
       <div className="grid grid-cols-2 gap-4 mb-8">
         {[
           { icon: Building2, title: "Outlet Details", desc: "Business name, address, operating hours", status: "Configured" },

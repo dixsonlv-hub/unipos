@@ -24,6 +24,7 @@ import AdminQueue from "./pages/admin/AdminQueue";
 import QueueKiosk from "./pages/QueueKiosk";
 import KioskOrdering from "./pages/KioskOrdering";
 import QROrdering from "./pages/QROrdering";
+import KDSDisplay from "./pages/KDSDisplay";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -43,6 +44,7 @@ const App = () => (
               <Route path="/queue" element={<QueueKiosk />} />
               <Route path="/kiosk" element={<KioskOrdering />} />
               <Route path="/qr" element={<QROrdering />} />
+              <Route path="/kds" element={<KDSDisplay />} />
               <Route path="/admin" element={<AdminLayout />}>
                 <Route index element={<AdminDashboard />} />
                 <Route path="menu" element={<AdminMenu />} />
