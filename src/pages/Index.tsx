@@ -11,7 +11,7 @@ const Index: React.FC = () => (
         <img src={uniwebLogo} alt="Uniweb" className="w-16 h-16 rounded-2xl mx-auto mb-5" />
         <h1 className="text-2xl font-bold text-foreground tracking-tight mb-1">Uniweb Smart POS</h1>
         <p className="text-[13px] text-muted-foreground mb-10">Select a surface to explore</p>
-        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-4">
+        <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-6 gap-4">
           {[
             { to: "/tablet", icon: Monitor, title: "Tablet POS", desc: "Cashier workstation" },
             { to: "/mobile", icon: Smartphone, title: "Mobile POS", desc: "Handheld ordering" },

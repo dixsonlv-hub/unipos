@@ -1,6 +1,7 @@
 import { useSyncExternalStore } from "react";
 
 export type QRPaymentMode = "pre-pay" | "post-pay" | "choice";
+export type ServiceType = "fast-food" | "restaurant";
 
 export interface MerchantSettings {
   qrEnabled: boolean;
@@ -8,6 +9,7 @@ export interface MerchantSettings {
   kioskEnabled: boolean;
   kioskPaymentMethods: ("card" | "qr")[];
   loyaltyPointsPerDollar: number;
+  serviceType: ServiceType;
 }
 
 let settings: MerchantSettings = {
@@ -16,6 +18,7 @@ let settings: MerchantSettings = {
   kioskEnabled: true,
   kioskPaymentMethods: ["card", "qr"],
   loyaltyPointsPerDollar: 1,
+  serviceType: "restaurant",
 };
 
 let listeners = new Set<() => void>();
