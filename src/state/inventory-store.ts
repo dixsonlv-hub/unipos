@@ -4,6 +4,12 @@ export type InventoryCategory = "Raw Ingredients" | "Packaging" | "Beverages" | 
 export type StockStatus = "in-stock" | "low" | "out-of-stock" | "expiring";
 export type MovementType = "receive" | "waste" | "transfer" | "sale" | "adjustment";
 
+export interface SupplierPrice {
+  supplier: string;
+  unitCost: number;
+  lastQuoted: string;
+}
+
 export interface InventoryItem {
   id: string;
   name: string;
@@ -19,6 +25,7 @@ export interface InventoryItem {
   expiryDate?: string;
   linkedMenuItemIds?: string[];
   quantityPerServing?: number;
+  supplierPrices?: SupplierPrice[];
 }
 
 export interface StockMovement {
