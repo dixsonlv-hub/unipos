@@ -148,6 +148,46 @@ export function deductIngredientsForOrder(menuItemId: string, quantity: number) 
   }
 }
 
+// Overstock detection: items with stock > 3× reorder point
+export function getOverstockItems(): InventoryItem[] {
+  return inventoryItems.filter(i => i.currentStock > i.reorderPoint * 3);
+}
+
+// Check if a menu item is available by checking linked ingredients
+export function isItemAvailableByStock(menuItemId: string): boolean {
+  const linked = inventoryItems.filter(i => i.linkedMenuItemIds?.includes(menuItemId));
+  if (linked.length === 0) return true; // no inventory tracking
+  return linked.every(i => i.currentStock > 0);
+}
+
+// Get menu item IDs that are out of stock
+export function getOutOfStockMenuItems(): string[] {
+  const allLinkedIds = new Set<string>();
+  inventoryItems.forEach(i => i.linkedMenuItemIds?.forEach(id => allLinkedIds.add(id)));
+  return Array.from(allLinkedIds).filter(id => !isItemAvailableByStock(id));
+}
+
+// Get daily COGS from movements
+export function getDailyCOGS(): { totalCOGS: number; breakdown: { itemName: string; qty: number; cost: number }[] } {
+  const today = new Date().toISOString().split("T")[0];
+  const todayMovements = movements.filter(m => m.type === "sale" && m.timestamp.startsWith(today));
+  const breakdown: { itemName: string; qty: number; cost: number }[] = [];
+  for (const m of todayMovements) {
+    const item = inventoryItems.find(i => i.id === m.inventoryItemId);
+    if (item) {
+      breakdown.push({
+        itemName: item.name,
+        qty: Math.abs(m.quantity),
+        cost: Math.abs(m.quantity) * item.costPerUnit,
+      });
+    }
+  }
+  return {
+    totalCOGS: breakdown.reduce((sum, b) => sum + b.cost, 0),
+    breakdown,
+  };
+}
+
 export function useInventory() {
   return useSyncExternalStore(
     (cb) => { listeners.add(cb); return () => listeners.delete(cb); },
