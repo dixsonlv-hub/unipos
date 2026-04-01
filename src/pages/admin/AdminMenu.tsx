@@ -1,13 +1,15 @@
 import React, { useState } from "react";
-import { Plus, Pencil, Search, Package, Image as ImageIcon } from "lucide-react";
+import { Plus, Pencil, Search, Package, Image as ImageIcon, Beaker } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { menuItems, categories } from "@/data/mock-data";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
+import { useInventory } from "@/state/inventory-store";
 
 const AdminMenu: React.FC = () => {
   const [activeTab, setActiveTab] = useState("items");
   const [search, setSearch] = useState("");
+  const inventoryItems = useInventory();
 
   const allItems = menuItems.filter(i => !i.isCombo);
   const combos = menuItems.filter(i => i.isCombo);
@@ -20,6 +22,11 @@ const AdminMenu: React.FC = () => {
   const filteredCombos = search
     ? combos.filter(i => i.name.toLowerCase().includes(search.toLowerCase()))
     : combos;
+
+  // Get linked ingredients for a menu item
+  const getLinkedIngredients = (menuItemId: string) => {
+    return inventoryItems.filter(inv => inv.linkedMenuItemIds?.includes(menuItemId));
+  };
 
   return (
     <div className="p-7">
@@ -59,34 +66,53 @@ const AdminMenu: React.FC = () => {
               <div key={cat} className="mb-6">
                 <div className="section-label mb-3 pb-2 border-b border-border">{cat}</div>
                 <div className="uniweb-card divide-y divide-border">
-                  {items.map(item => (
-                    <div key={item.id} className="flex items-center gap-4 px-5 py-3 hover:bg-accent transition-colors cursor-pointer">
-                      {/* Thumbnail */}
-                      <div className="w-12 h-12 rounded-lg overflow-hidden bg-accent shrink-0 border border-border">
-                        {item.image ? (
-                          <img src={item.image} alt={item.name} className="w-full h-full object-cover" loading="lazy" />
-                        ) : (
-                          <div className="w-full h-full flex items-center justify-center">
-                            <ImageIcon className="h-4 w-4 text-muted-foreground/40" />
+                  {items.map(item => {
+                    const linkedIngredients = getLinkedIngredients(item.id);
+                    return (
+                      <div key={item.id} className="px-5 py-3 hover:bg-accent/30 transition-colors">
+                        <div className="flex items-center gap-4">
+                          {/* Thumbnail */}
+                          <div className="w-12 h-12 rounded-lg overflow-hidden bg-accent shrink-0 border border-border">
+                            {item.image ? (
+                              <img src={item.image} alt={item.name} className="w-full h-full object-cover" loading="lazy" />
+                            ) : (
+                              <div className="w-full h-full flex items-center justify-center">
+                                <ImageIcon className="h-4 w-4 text-muted-foreground/40" />
+                              </div>
+                            )}
+                          </div>
+                          <div className="flex-1 min-w-0">
+                            <h3 className="text-[13px] font-medium text-foreground">{item.name}</h3>
+                            <p className="text-[11px] text-muted-foreground mt-0.5">{item.modifierGroups?.length || 0} modifier groups</p>
+                          </div>
+                          <div className="flex items-center gap-4">
+                            <span className="text-[13px] font-semibold text-foreground font-mono">${item.price.toFixed(2)}</span>
+                            <span className={`status-badge ${item.available ? "bg-status-green-light text-status-green" : "bg-status-red-light text-status-red"}`}>
+                              <span className={`status-dot ${item.available ? "bg-status-green" : "bg-status-red"}`} />
+                              {item.available ? "Available" : "Unavailable"}
+                            </span>
+                            <button className="p-1.5 rounded-md hover:bg-accent text-muted-foreground transition-colors">
+                              <Pencil className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        </div>
+                        {/* Recipe / Ingredient linkage */}
+                        {linkedIngredients.length > 0 && (
+                          <div className="mt-2 ml-16 flex items-start gap-2">
+                            <Beaker className="h-3 w-3 text-primary mt-0.5 shrink-0" />
+                            <div className="flex flex-wrap gap-1.5">
+                              {linkedIngredients.map(inv => (
+                                <span key={inv.id} className="text-[10px] bg-primary/5 text-primary border border-primary/10 px-2 py-0.5 rounded-md font-medium">
+                                  {inv.name}: {inv.quantityPerServing || "?"} {inv.unit}/serving
+                                  <span className="ml-1 text-muted-foreground">(${inv.costPerUnit.toFixed(2)})</span>
+                                </span>
+                              ))}
+                            </div>
                           </div>
                         )}
                       </div>
-                      <div className="flex-1 min-w-0">
-                        <h3 className="text-[13px] font-medium text-foreground">{item.name}</h3>
-                        <p className="text-[11px] text-muted-foreground mt-0.5">{item.modifierGroups?.length || 0} modifier groups</p>
-                      </div>
-                      <div className="flex items-center gap-4">
-                        <span className="text-[13px] font-semibold text-foreground font-mono">${item.price.toFixed(2)}</span>
-                        <span className={`status-badge ${item.available ? "bg-status-green-light text-status-green" : "bg-status-red-light text-status-red"}`}>
-                          <span className={`status-dot ${item.available ? "bg-status-green" : "bg-status-red"}`} />
-                          {item.available ? "Available" : "Unavailable"}
-                        </span>
-                        <button className="p-1.5 rounded-md hover:bg-accent text-muted-foreground transition-colors">
-                          <Pencil className="h-3.5 w-3.5" />
-                        </button>
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               </div>
             );
@@ -99,7 +125,6 @@ const AdminMenu: React.FC = () => {
             {filteredCombos.map(combo => (
               <div key={combo.id} className="uniweb-card overflow-hidden">
                 <div className="flex items-center gap-4 px-5 py-4">
-                  {/* Combo thumbnail */}
                   <div className="w-16 h-16 rounded-lg overflow-hidden bg-accent shrink-0 border border-border">
                     {combo.image ? (
                       <img src={combo.image} alt={combo.name} className="w-full h-full object-cover" loading="lazy" />
@@ -129,7 +154,6 @@ const AdminMenu: React.FC = () => {
                     </button>
                   </div>
                 </div>
-                {/* Combo groups */}
                 {combo.comboGroups && (
                   <div className="border-t border-border px-5 py-3 bg-accent/30">
                     <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">

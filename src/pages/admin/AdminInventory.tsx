@@ -1,12 +1,12 @@
 import React, { useState } from "react";
-import { Package, Search, AlertTriangle, TrendingDown, Clock, Plus, ArrowUpDown } from "lucide-react";
+import { Package, Search, AlertTriangle, TrendingDown, Clock, Plus, ArrowUpDown, DollarSign, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
 import { Progress } from "@/components/ui/progress";
 import {
   useInventory, useStockMovements, usePurchaseOrders,
-  getStockStatus, adjustStock,
+  getStockStatus, adjustStock, getOverstockItems, getDailyCOGS,
   type InventoryItem, type StockStatus as StockStatusType,
 } from "@/state/inventory-store";
 
@@ -35,6 +35,8 @@ const AdminInventory: React.FC = () => {
   const lowStock = items.filter(i => getStockStatus(i) === "low" || getStockStatus(i) === "out-of-stock");
   const expiringSoon = items.filter(i => getStockStatus(i) === "expiring");
   const totalValue = items.reduce((sum, i) => sum + i.currentStock * i.costPerUnit, 0);
+  const overstockItems = getOverstockItems();
+  const dailyCOGS = getDailyCOGS();
 
   const handleAdjust = () => {
     if (!adjustItem || !adjustQty) return;
@@ -44,6 +46,9 @@ const AdminInventory: React.FC = () => {
     setAdjustQty("");
     setAdjustReason("");
   };
+
+  // Supplier comparison data
+  const supplierItems = items.filter(i => i.supplierPrices && i.supplierPrices.length > 1);
 
   return (
     <div className="p-7">
@@ -76,10 +81,29 @@ const AdminInventory: React.FC = () => {
         ))}
       </div>
 
+      {/* Overstock alert */}
+      {overstockItems.length > 0 && (
+        <div className="uniweb-card p-4 mb-6 border-l-4 border-status-amber">
+          <div className="flex items-center gap-2 mb-2">
+            <TrendingUp className="h-4 w-4 text-status-amber" />
+            <span className="text-sm font-semibold text-foreground">Overstock Alert — Consider Promotions</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {overstockItems.map(item => (
+              <span key={item.id} className="text-xs bg-status-amber/10 text-status-amber px-2 py-1 rounded-md font-medium">
+                {item.name}: {item.currentStock} {item.unit} (reorder: {item.reorderPoint})
+              </span>
+            ))}
+          </div>
+        </div>
+      )}
+
       <Tabs value={tab} onValueChange={setTab} className="w-full">
         <div className="flex items-center gap-4 mb-5">
           <TabsList className="bg-accent rounded-lg">
             <TabsTrigger value="stock" className="text-[13px] rounded-md">Stock List</TabsTrigger>
+            <TabsTrigger value="suppliers" className="text-[13px] rounded-md">Suppliers</TabsTrigger>
+            <TabsTrigger value="cogs" className="text-[13px] rounded-md">Daily COGS</TabsTrigger>
             <TabsTrigger value="orders" className="text-[13px] rounded-md">Purchase Orders</TabsTrigger>
             <TabsTrigger value="log" className="text-[13px] rounded-md">Movement Log</TabsTrigger>
           </TabsList>
@@ -155,6 +179,107 @@ const AdminInventory: React.FC = () => {
               </tbody>
             </table>
           </div>
+        </TabsContent>
+
+        {/* Suppliers tab */}
+        <TabsContent value="suppliers">
+          <div className="uniweb-card overflow-hidden">
+            <table className="w-full">
+              <thead><tr className="table-header">
+                <th>Item</th><th>Current Supplier</th><th>Current Cost</th><th>Alternative Suppliers</th><th>Best Price</th><th>Savings</th>
+              </tr></thead>
+              <tbody className="divide-y divide-border">
+                {supplierItems.map(item => {
+                  const prices = item.supplierPrices!;
+                  const cheapest = prices.reduce((a, b) => a.unitCost < b.unitCost ? a : b);
+                  const savings = item.costPerUnit - cheapest.unitCost;
+                  return (
+                    <tr key={item.id} className="table-row hover:bg-accent/50 transition-colors">
+                      <td>
+                        <div className="text-[13px] font-medium text-foreground">{item.name}</div>
+                        <div className="text-[11px] text-muted-foreground font-mono">{item.sku}</div>
+                      </td>
+                      <td><span className="text-[12px] text-foreground">{item.supplier}</span></td>
+                      <td><span className="text-[13px] font-mono text-foreground">${item.costPerUnit.toFixed(2)}/{item.unit}</span></td>
+                      <td>
+                        <div className="space-y-1">
+                          {prices.map((sp, idx) => (
+                            <div key={idx} className={cn("flex items-center gap-2 text-[12px]", sp.unitCost === cheapest.unitCost ? "font-semibold text-status-green" : "text-muted-foreground")}>
+                              <span>{sp.supplier}</span>
+                              <span className="font-mono">${sp.unitCost.toFixed(2)}</span>
+                              {sp.unitCost === cheapest.unitCost && <span className="text-[10px] bg-status-green/10 text-status-green px-1.5 py-0.5 rounded">BEST</span>}
+                            </div>
+                          ))}
+                        </div>
+                      </td>
+                      <td><span className="text-[13px] font-mono font-semibold text-status-green">${cheapest.unitCost.toFixed(2)}</span></td>
+                      <td>
+                        {savings > 0 ? (
+                          <span className="text-[13px] font-mono font-semibold text-status-green">-${savings.toFixed(2)}</span>
+                        ) : (
+                          <span className="text-[12px] text-muted-foreground">—</span>
+                        )}
+                      </td>
+                    </tr>
+                  );
+                })}
+                {supplierItems.length === 0 && (
+                  <tr><td colSpan={6} className="text-center text-sm text-muted-foreground py-8">No multi-supplier items</td></tr>
+                )}
+              </tbody>
+            </table>
+          </div>
+        </TabsContent>
+
+        {/* Daily COGS tab */}
+        <TabsContent value="cogs">
+          <div className="grid grid-cols-3 gap-4 mb-6">
+            <div className="uniweb-card p-5 relative overflow-hidden">
+              <div className="kpi-stripe bg-primary" />
+              <p className="section-label mb-1">Today's COGS</p>
+              <p className="text-2xl font-bold text-foreground font-mono">${dailyCOGS.totalCOGS.toFixed(2)}</p>
+            </div>
+            <div className="uniweb-card p-5 relative overflow-hidden">
+              <div className="kpi-stripe bg-status-green" />
+              <p className="section-label mb-1">Estimated Revenue</p>
+              <p className="text-2xl font-bold text-foreground font-mono">$1,280.00</p>
+              <p className="text-[11px] text-muted-foreground mt-1">From today's orders</p>
+            </div>
+            <div className="uniweb-card p-5 relative overflow-hidden">
+              <div className="kpi-stripe bg-status-amber" />
+              <p className="section-label mb-1">COGS %</p>
+              <p className="text-2xl font-bold text-foreground font-mono">
+                {dailyCOGS.totalCOGS > 0 ? ((dailyCOGS.totalCOGS / 1280) * 100).toFixed(1) : "0.0"}%
+              </p>
+              <p className="text-[11px] text-muted-foreground mt-1">Target: 30-35%</p>
+            </div>
+          </div>
+
+          {dailyCOGS.breakdown.length > 0 ? (
+            <div className="uniweb-card overflow-hidden">
+              <table className="w-full">
+                <thead><tr className="table-header">
+                  <th>Ingredient</th><th>Qty Used</th><th>Unit Cost</th><th>Total Cost</th>
+                </tr></thead>
+                <tbody className="divide-y divide-border">
+                  {dailyCOGS.breakdown.map((b, i) => (
+                    <tr key={i} className="table-row">
+                      <td><span className="text-[13px] text-foreground">{b.itemName}</span></td>
+                      <td><span className="text-[13px] font-mono text-foreground">{b.qty}</span></td>
+                      <td><span className="text-[13px] font-mono text-muted-foreground">${(b.cost / b.qty).toFixed(2)}</span></td>
+                      <td><span className="text-[13px] font-mono font-semibold text-foreground">${b.cost.toFixed(2)}</span></td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          ) : (
+            <div className="uniweb-card p-8 text-center">
+              <DollarSign className="h-8 w-8 text-muted-foreground mx-auto mb-2" />
+              <p className="text-sm text-muted-foreground">No sales movements recorded today</p>
+              <p className="text-xs text-muted-foreground mt-1">COGS data will populate as orders are processed</p>
+            </div>
+          )}
         </TabsContent>
 
         <TabsContent value="orders">
