@@ -24,6 +24,7 @@ import AdminQueue from "./pages/admin/AdminQueue";
 import QueueKiosk from "./pages/QueueKiosk";
 import KioskOrdering from "./pages/KioskOrdering";
 import QROrdering from "./pages/QROrdering";
+import KDSDisplay from "./pages/KDSDisplay";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
