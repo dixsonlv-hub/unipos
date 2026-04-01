@@ -17,6 +17,7 @@ const Index: React.FC = () => (
             { to: "/mobile", icon: Smartphone, title: "Mobile POS", desc: "Handheld ordering" },
             { to: "/kiosk", icon: MonitorSmartphone, title: "Kiosk", desc: "Self-service ordering" },
             { to: "/qr", icon: QrCode, title: "QR Order", desc: "Scan & order at table" },
+            { to: "/kds", icon: ChefHat, title: "KDS", desc: "Kitchen display system" },
             { to: "/admin", icon: Settings, title: "Admin", desc: "Merchant portal" },
           ].map(s => (
             <Link key={s.to} to={s.to} className="backdrop-blur-sm bg-white/70 dark:bg-white/10 border-[1.5px] border-white/40 dark:border-white/15 rounded-xl p-6 hover:border-primary/40 hover:shadow-lg transition-all group">
