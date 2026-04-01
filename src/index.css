@@ -210,6 +210,15 @@
   }
 
   /* Page animation */
+  @keyframes blob-drift {
+    0%   { background-position: 10% 20%, 90% 80%, 50% 50%, 80% 20%, 30% 90%; }
+    50%  { background-position: 60% 40%, 30% 60%, 70% 30%, 40% 70%, 80% 40%; }
+    100% { background-position: 90% 80%, 10% 20%, 30% 70%, 60% 50%, 20% 30%; }
+  }
+  .animate-blob-drift {
+    animation: blob-drift 25s ease-in-out infinite alternate;
+  }
+
   @keyframes fadeUp {
     from { opacity: 0; transform: translateY(8px); }
     to { opacity: 1; transform: translateY(0); }
