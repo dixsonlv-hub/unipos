@@ -282,6 +282,7 @@ const TabletPOS: React.FC = () => {
         onMergeTables={handleMergeTables}
         onSplitTable={handleSplitTable}
         onReserveTable={handleReserveTable}
+        onCancelReservation={handleCancelReservation}
         onSeatReserved={handleSeatReserved}
         isFullscreen={floorFullscreen}
         onToggleFullscreen={() => setFloorFullscreen(f => !f)}
@@ -299,6 +300,8 @@ const TabletPOS: React.FC = () => {
             onUpdateQuantity={handleUpdateQuantity}
             onRemoveItem={handleRemoveItem}
             onPay={() => setShowPayment(true)}
+            onCancelOrder={handleCancelOrder}
+            canCancel={currentOrder?.status === "sent" && canCancelOrder(currentOrder.id)}
           />
         </>
       )}
