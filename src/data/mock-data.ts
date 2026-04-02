@@ -87,6 +87,7 @@ export interface Order {
   tableId?: string;
   tableNumber?: string;
   serviceMode: ServiceMode;
+  serveTogether?: boolean;
   items: OrderItem[];
   status: OrderStatus;
   guestCount: number;
@@ -96,6 +97,7 @@ export interface Order {
   gst: number;
   total: number;
   customerId?: string;
+  paymentCaptured?: boolean;
 }
 
 export interface Customer {
