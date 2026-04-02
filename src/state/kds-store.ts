@@ -23,6 +23,7 @@ export interface KDSTicket {
   servedAt?: string;
   cancelledAt?: string;
   collectionNumber?: string;
+  serveTogether?: boolean;
 }
 
 // Initialize tickets from sample orders
@@ -46,6 +47,7 @@ function initTickets(): KDSTicket[] {
         firedAt: item.firedAt,
         startedAt: item.status === "preparing" || item.status === "ready" ? item.firedAt : undefined,
         readyAt: item.status === "ready" ? new Date().toISOString() : undefined,
+        serveTogether: order.serveTogether,
       }))
   );
 }
@@ -110,6 +112,19 @@ export function cancelTicket(ticketId: string) {
     tickets = tickets.filter(t => !(t.id === ticketId && t.status === "cancelled"));
     emit();
   }, 10000);
+}
+
+/** Cancel all tickets for an order (called from POS) */
+export function cancelOrderTickets(orderId: string) {
+  const orderTickets = tickets.filter(t => t.orderId === orderId && t.status !== "served" && t.status !== "cancelled");
+  orderTickets.forEach(t => cancelTicket(t.id));
+}
+
+/** Check if an order can be cancelled: all its KDS tickets must be "new" */
+export function canCancelOrder(orderId: string): boolean {
+  const orderTickets = tickets.filter(t => t.orderId === orderId);
+  if (orderTickets.length === 0) return false;
+  return orderTickets.every(t => t.status === "new" || t.status === "served" || t.status === "cancelled");
 }
 
 export function addTicket(ticket: KDSTicket) {
