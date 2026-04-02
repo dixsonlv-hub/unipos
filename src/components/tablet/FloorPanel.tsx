@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Search, ShoppingBag, Truck, ArrowRightLeft, Merge, Split, X, Check, Users, Maximize2, Minimize2, CalendarPlus, UserCheck } from "lucide-react";
+import { Search, ShoppingBag, Truck, ArrowRightLeft, Merge, Split, X, Check, Users, Maximize2, Minimize2, CalendarPlus, UserCheck, Phone, Clock, FileText } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { type Table, type TableStatus, type ServiceMode, zones } from "@/data/mock-data";
@@ -16,7 +16,8 @@ interface FloorPanelProps {
   onTransferTable?: (fromId: string, toId: string) => void;
   onMergeTables?: (tableIds: string[]) => void;
   onSplitTable?: (tableId: string, count: number) => void;
-  onReserveTable?: (tableId: string, guestName: string, guestCount: number) => void;
+  onReserveTable?: (tableId: string, guestName: string, guestCount: number, phone?: string, time?: string, notes?: string) => void;
+  onCancelReservation?: (tableId: string) => void;
   onSeatReserved?: (tableId: string) => void;
   isFullscreen?: boolean;
   onToggleFullscreen?: () => void;
@@ -36,7 +37,7 @@ const allStatuses: TableStatus[] = ["available", "reserved", "ordering", "ordere
 export const FloorPanel: React.FC<FloorPanelProps> = ({
   tables, selectedTableId, onSelectTable, onCreateWalkIn,
   onTransferTable, onMergeTables, onSplitTable,
-  onReserveTable, onSeatReserved,
+  onReserveTable, onCancelReservation, onSeatReserved,
   isFullscreen, onToggleFullscreen,
 }) => {
   const { t } = useLanguage();
@@ -47,6 +48,9 @@ export const FloorPanel: React.FC<FloorPanelProps> = ({
   const [splitCount, setSplitCount] = useState(2);
   const [showReserve, setShowReserve] = useState(false);
   const [reserveName, setReserveName] = useState("");
+  const [reservePhone, setReservePhone] = useState("");
+  const [reserveTime, setReserveTime] = useState("");
+  const [reserveNotes, setReserveNotes] = useState("");
   const [reserveCount, setReserveCount] = useState(2);
 
   const filteredTables = tables.filter(t => {
@@ -70,6 +74,7 @@ export const FloorPanel: React.FC<FloorPanelProps> = ({
       return;
     }
     onSelectTable(tableId);
+    setShowReserve(false);
   };
 
   const handleConfirmMerge = () => {
@@ -83,10 +88,22 @@ export const FloorPanel: React.FC<FloorPanelProps> = ({
     setTableAction(null);
   };
 
+  const handleConfirmReserve = () => {
+    if (selectedTableId) {
+      onReserveTable?.(selectedTableId, reserveName || "Guest", reserveCount, reservePhone, reserveTime, reserveNotes);
+      setShowReserve(false);
+      setReserveName("");
+      setReservePhone("");
+      setReserveTime("");
+      setReserveNotes("");
+    }
+  };
+
   const cancelAction = () => { setTableAction(null); setMergeTargets([]); };
 
   const selectedTable = tables.find(t => t.id === selectedTableId);
-  const showActions = selectedTable && !tableAction && (selectedTable.status === "ordering" || selectedTable.status === "ordered" || selectedTable.status === "available");
+  const showTableActions = selectedTable && !tableAction && !showReserve &&
+    (selectedTable.status === "ordering" || selectedTable.status === "ordered" || selectedTable.status === "available");
 
   return (
     <div className={cn(
@@ -141,7 +158,7 @@ export const FloorPanel: React.FC<FloorPanelProps> = ({
         })}
       </div>
 
-      {/* Status Legend — fixed below zones */}
+      {/* Status Legend */}
       <div className="flex flex-wrap items-center gap-x-3 gap-y-1 px-3 py-1.5 border-b border-border bg-accent/30">
         {allStatuses.map(status => {
           const cfg = statusConfig[status];
@@ -223,7 +240,7 @@ export const FloorPanel: React.FC<FloorPanelProps> = ({
                 <div className={cn("w-full h-[3px] rounded-t-lg", cfg.stripe)} />
 
                 {/* Fixed-height content area */}
-                <div className="px-2.5 py-2 h-[72px] flex flex-col justify-between">
+                <div className="px-2.5 py-2 h-[82px] flex flex-col justify-between">
                   {/* Row 1: Table number + status dot */}
                   <div className="flex items-center justify-between">
                     <span className="font-bold text-foreground text-[14px] leading-none">T{table.number}</span>
@@ -236,7 +253,14 @@ export const FloorPanel: React.FC<FloorPanelProps> = ({
                     <span>{table.guestCount || 0}/{table.seats}</span>
                   </div>
 
-                  {/* Row 3: Amount + elapsed — always present row (may be empty) */}
+                  {/* Row 3: Reservation name (only when reserved) */}
+                  {table.status === "reserved" && table.reservationName && (
+                    <div className="text-[10px] text-primary font-medium truncate leading-none">
+                      {table.reservationName}
+                    </div>
+                  )}
+
+                  {/* Row 4: Amount + elapsed */}
                   <div className="flex items-center justify-between min-h-[14px]">
                     {table.openAmount !== undefined && table.openAmount > 0 ? (
                       <span className="text-[11px] font-semibold text-foreground font-mono leading-none">${table.openAmount.toFixed(2)}</span>
@@ -263,8 +287,52 @@ export const FloorPanel: React.FC<FloorPanelProps> = ({
         </div>
       </div>
 
+      {/* Reservation Form */}
+      {showReserve && selectedTable?.status === "available" && (
+        <div className="px-3 py-2 border-t border-border">
+          <div className="space-y-1.5 p-2 bg-accent/50 rounded-md">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-[11px] font-semibold text-foreground">Reserve T{selectedTable.number}</span>
+              <button onClick={() => setShowReserve(false)} className="p-0.5 rounded hover:bg-accent">
+                <X className="h-3 w-3 text-muted-foreground" />
+              </button>
+            </div>
+            <input placeholder={t("guest_name")} value={reserveName} onChange={e => setReserveName(e.target.value)}
+              className="w-full h-7 px-2.5 rounded-md bg-background border-1.5 border-border text-[11px] text-foreground focus:outline-none focus:border-primary" />
+            <div className="relative">
+              <Phone className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+              <input type="tel" inputMode="tel" placeholder="Phone" value={reservePhone} onChange={e => setReservePhone(e.target.value)}
+                className="w-full h-7 pl-7 pr-2.5 rounded-md bg-background border-1.5 border-border text-[11px] text-foreground focus:outline-none focus:border-primary" />
+            </div>
+            <div className="relative">
+              <Clock className="absolute left-2 top-1/2 -translate-y-1/2 h-3 w-3 text-muted-foreground" />
+              <input type="time" value={reserveTime} onChange={e => setReserveTime(e.target.value)}
+                className="w-full h-7 pl-7 pr-2.5 rounded-md bg-background border-1.5 border-border text-[11px] text-foreground focus:outline-none focus:border-primary" />
+            </div>
+            <div className="flex items-center gap-1.5">
+              <span className="text-[10px] text-muted-foreground">{t("guest_count_label")}:</span>
+              {[2, 4, 6, 8].map(n => (
+                <button key={n} onClick={() => setReserveCount(n)}
+                  className={cn("w-6 h-6 rounded text-[10px] font-bold",
+                    reserveCount === n ? "bg-primary text-primary-foreground" : "bg-accent text-foreground"
+                  )}>{n}</button>
+              ))}
+            </div>
+            <div className="relative">
+              <FileText className="absolute left-2 top-2 h-3 w-3 text-muted-foreground" />
+              <textarea placeholder="Notes" value={reserveNotes} onChange={e => setReserveNotes(e.target.value)}
+                rows={2}
+                className="w-full pl-7 pr-2.5 py-1.5 rounded-md bg-background border-1.5 border-border text-[11px] text-foreground focus:outline-none focus:border-primary resize-none" />
+            </div>
+            <Button size="sm" className="w-full h-7 text-xs rounded-md" onClick={handleConfirmReserve}>
+              <Check className="h-3 w-3 mr-1" />Confirm Reservation
+            </Button>
+          </div>
+        </div>
+      )}
+
       {/* Table Actions */}
-      {showActions && !isFullscreen && (
+      {showTableActions && !isFullscreen && (
         <div className="px-3 py-2 border-t border-border space-y-1.5">
           <div className="flex gap-1">
             <button onClick={() => setTableAction("transfer")}
@@ -280,46 +348,53 @@ export const FloorPanel: React.FC<FloorPanelProps> = ({
               <Split className="h-3.5 w-3.5" />{t("split_table")}
             </button>
           </div>
-          {/* Reserve / Seat actions for specific statuses */}
+          {/* Reserve for available tables */}
           {selectedTable?.status === "available" && onReserveTable && (
-            <div>
-              {showReserve ? (
-                <div className="space-y-1.5 p-2 bg-accent/50 rounded-md">
-                  <input placeholder={t("guest_name")} value={reserveName} onChange={e => setReserveName(e.target.value)}
-                    className="w-full h-7 px-2.5 rounded-md bg-background border-1.5 border-border text-[11px] text-foreground focus:outline-none focus:border-primary" />
-                  <div className="flex items-center gap-1.5">
-                    <span className="text-[10px] text-muted-foreground">{t("guest_count_label")}:</span>
-                    {[2, 4, 6, 8].map(n => (
-                      <button key={n} onClick={() => setReserveCount(n)}
-                        className={cn("w-6 h-6 rounded text-[10px] font-bold",
-                          reserveCount === n ? "bg-primary text-primary-foreground" : "bg-accent text-foreground"
-                        )}>{n}</button>
-                    ))}
-                    <button onClick={() => {
-                      onReserveTable(selectedTableId!, reserveName || "Guest", reserveCount);
-                      setShowReserve(false); setReserveName("");
-                    }} className="ml-auto p-1 rounded bg-primary text-primary-foreground">
-                      <Check className="h-3 w-3" />
-                    </button>
-                  </div>
+            <Button variant="outline" size="sm" className="w-full justify-start gap-2 text-xs rounded-lg" onClick={() => setShowReserve(true)}>
+              <CalendarPlus className="h-3.5 w-3.5" />{t("reserve_table")}
+            </Button>
+          )}
+          {/* Seat / Cancel for reserved tables */}
+          {selectedTable?.status === "reserved" && (
+            <div className="space-y-1.5">
+              {/* Show reservation details if they exist */}
+              {(selectedTable.reservationName || selectedTable.reservationPhone || selectedTable.reservationAt) && (
+                <div className="p-2 bg-primary/5 rounded-md space-y-0.5">
+                  {selectedTable.reservationName && (
+                    <p className="text-[11px] font-medium text-foreground">{selectedTable.reservationName}</p>
+                  )}
+                  {selectedTable.reservationPhone && (
+                    <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                      <Phone className="h-2.5 w-2.5" />{selectedTable.reservationPhone}
+                    </p>
+                  )}
+                  {selectedTable.reservationAt && (
+                    <p className="text-[10px] text-muted-foreground flex items-center gap-1">
+                      <Clock className="h-2.5 w-2.5" />{selectedTable.reservationAt}
+                    </p>
+                  )}
+                  {selectedTable.reservationNotes && (
+                    <p className="text-[10px] text-muted-foreground italic">{selectedTable.reservationNotes}</p>
+                  )}
                 </div>
-              ) : (
-                <Button variant="outline" size="sm" className="w-full justify-start gap-2 text-xs rounded-lg" onClick={() => setShowReserve(true)}>
-                  <CalendarPlus className="h-3.5 w-3.5" />{t("reserve_table")}
+              )}
+              {onSeatReserved && (
+                <Button variant="default" size="sm" className="w-full justify-start gap-2 text-xs rounded-lg" onClick={() => onSeatReserved(selectedTableId!)}>
+                  <UserCheck className="h-3.5 w-3.5" />{t("seat_guests")}
+                </Button>
+              )}
+              {onCancelReservation && (
+                <Button variant="destructive" size="sm" className="w-full justify-start gap-2 text-xs rounded-lg" onClick={() => onCancelReservation(selectedTableId!)}>
+                  <X className="h-3.5 w-3.5" />Cancel Reservation
                 </Button>
               )}
             </div>
-          )}
-          {selectedTable?.status === "reserved" && onSeatReserved && (
-            <Button variant="default" size="sm" className="w-full justify-start gap-2 text-xs rounded-lg" onClick={() => onSeatReserved(selectedTableId!)}>
-              <UserCheck className="h-3.5 w-3.5" />{t("seat_guests")}
-            </Button>
           )}
         </div>
       )}
 
       {/* Quick Actions */}
-      {!isFullscreen && (
+      {!isFullscreen && !showReserve && (
         <div className="p-3 border-t border-border space-y-1.5">
           <Button variant="outline" size="sm" className="w-full justify-start gap-2 text-xs rounded-lg" onClick={() => onCreateWalkIn("takeaway")}>
             <ShoppingBag className="h-3.5 w-3.5" />{t("takeaway_order")}

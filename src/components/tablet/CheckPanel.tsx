@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Minus, Plus, Trash2, Users, UtensilsCrossed, Percent, TicketPercent, SplitSquareVertical, Star, Gift } from "lucide-react";
+import { Minus, Plus, Trash2, Users, UtensilsCrossed, Percent, TicketPercent, SplitSquareVertical, Star, Gift, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { type Order, type Table } from "@/data/mock-data";
@@ -14,9 +14,11 @@ interface CheckPanelProps {
   onRemoveItem: (itemId: string) => void;
   onPay: () => void;
   onApplyDiscount?: (amount: number) => void;
+  onCancelOrder?: () => void;
+  canCancel?: boolean;
 }
 
-export const CheckPanel: React.FC<CheckPanelProps> = ({ order, table, customer, onUpdateQuantity, onRemoveItem, onPay, onApplyDiscount }) => {
+export const CheckPanel: React.FC<CheckPanelProps> = ({ order, table, customer, onUpdateQuantity, onRemoveItem, onPay, onApplyDiscount, onCancelOrder, canCancel }) => {
   const { t } = useLanguage();
   const [promoCode, setPromoCode] = useState("");
   const [promoApplied, setPromoApplied] = useState(false);
@@ -254,6 +256,11 @@ export const CheckPanel: React.FC<CheckPanelProps> = ({ order, table, customer, 
         </div>
         {customer && (
           <p className="text-[10px] text-primary text-center">🎉 Earn {Math.floor(total)} pts on this order</p>
+        )}
+        {canCancel && onCancelOrder && (
+          <Button variant="destructive" size="sm" className="w-full mt-2 rounded-lg text-xs gap-1.5" onClick={onCancelOrder}>
+            <XCircle className="h-3.5 w-3.5" />Cancel Order
+          </Button>
         )}
         <Button variant="pay" size="xl" className="w-full mt-2 rounded-lg" disabled={order.items.length === 0} onClick={onPay}>
           {t("pay")} ${total.toFixed(2)}
