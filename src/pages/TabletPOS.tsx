@@ -219,11 +219,53 @@ const TabletPOS: React.FC = () => {
     });
   }, []);
 
-  const handleReserveTable = useCallback((tableId: string, guestName: string, guestCount: number) => {
+  const handleReserveTable = useCallback((tableId: string, guestName: string, guestCount: number, phone?: string, time?: string, notes?: string) => {
     setTables(prev => prev.map(t =>
-      t.id === tableId ? { ...t, status: "reserved" as const, guestCount } : t
+      t.id === tableId ? {
+        ...t,
+        status: "reserved" as const,
+        guestCount,
+        reservationName: guestName,
+        reservationPhone: phone,
+        reservationAt: time,
+        reservationNotes: notes,
+      } : t
     ));
   }, []);
+
+  const handleCancelReservation = useCallback((tableId: string) => {
+    setTables(prev => prev.map(t =>
+      t.id === tableId ? {
+        ...t,
+        status: "available" as const,
+        guestCount: undefined,
+        reservationName: undefined,
+        reservationPhone: undefined,
+        reservationAt: undefined,
+        reservationNotes: undefined,
+        reservationCustomerId: undefined,
+      } : t
+    ));
+    if (selectedTableId === tableId) {
+      setSelectedTableId(null);
+      setCurrentOrder(null);
+    }
+  }, [selectedTableId]);
+
+  const handleCancelOrder = useCallback(() => {
+    if (!currentOrder) return;
+    // Cancel KDS tickets
+    cancelOrderTickets(currentOrder.id);
+    // Reset order and table
+    if (currentOrder.tableId) {
+      setTables(prev => prev.map(t =>
+        t.id === currentOrder.tableId ? { ...t, status: "available" as const, guestCount: undefined, openAmount: undefined, orderId: undefined, elapsedMinutes: undefined } : t
+      ));
+    }
+    setOrders(prev => prev.map(o => o.id === currentOrder.id ? { ...o, status: "void" as const } : o));
+    setCurrentOrder(null);
+    setSelectedTableId(null);
+  }, [currentOrder]);
 
   const handleSeatReserved = useCallback((tableId: string) => {
     handleSelectTable(tableId);
