@@ -8,6 +8,7 @@ import { OrderHistory, type PaidOrder } from "@/components/tablet/OrderHistory";
 import { tables as mockTables, sampleOrders, menuItems, type Table, type Order, type OrderItem, type ServiceMode } from "@/data/mock-data";
 import { ThemeToggle } from "@/components/ThemeToggle";
 import { useLanguage } from "@/hooks/useLanguage";
+import { cancelOrderTickets, canCancelOrder } from "@/state/kds-store";
 
 const TabletPOS: React.FC = () => {
   const { t } = useLanguage();
