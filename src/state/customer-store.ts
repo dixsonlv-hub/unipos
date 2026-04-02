@@ -171,6 +171,51 @@ export function registerCustomer(phone: string, email: string, nickname: string)
   return newCustomer;
 }
 
+export interface Coupon {
+  id: string;
+  code: string;
+  label: string;
+  type: "percent" | "fixed";
+  value: number; // percent (0-100) or fixed dollar amount
+  minSpend: number;
+  expiresAt: string;
+  tier?: LoyaltyTier; // only available for this tier and above
+}
+
+const tierOrder: LoyaltyTier[] = ["bronze", "silver", "gold", "platinum"];
+
+function isTierEligible(customerTier: LoyaltyTier, requiredTier?: LoyaltyTier): boolean {
+  if (!requiredTier) return true;
+  return tierOrder.indexOf(customerTier) >= tierOrder.indexOf(requiredTier);
+}
+
+let coupons: Coupon[] = [
+  { id: "cp1", code: "WELCOME10", label: "10% Off First Order", type: "percent", value: 10, minSpend: 0, expiresAt: "2026-12-31" },
+  { id: "cp2", code: "VIP20", label: "$20 Off (VIP+)", type: "fixed", value: 20, minSpend: 80, expiresAt: "2026-12-31", tier: "gold" },
+  { id: "cp3", code: "SILVER5", label: "$5 Off (Silver+)", type: "fixed", value: 5, minSpend: 30, expiresAt: "2026-12-31", tier: "silver" },
+  { id: "cp4", code: "PLAT15", label: "15% Off (Platinum)", type: "percent", value: 15, minSpend: 50, expiresAt: "2026-12-31", tier: "platinum" },
+];
+
+export function getCouponsSnapshot() { return coupons; }
+
+export function getAvailableCoupons(customer: Customer): Coupon[] {
+  const now = new Date().toISOString();
+  return coupons.filter(c => c.expiresAt >= now && isTierEligible(customer.tier, c.tier));
+}
+
+export function applyCoupon(coupon: Coupon, subtotal: number): number {
+  if (subtotal < coupon.minSpend) return 0;
+  if (coupon.type === "percent") return Math.round(subtotal * coupon.value) / 100;
+  return Math.min(coupon.value, subtotal);
+}
+
+export function redeemPoints(customerId: string, points: number, reason: string): boolean {
+  const c = customers.find(c => c.id === customerId);
+  if (!c || c.points < points) return false;
+  addPoints(customerId, -points, reason);
+  return true;
+}
+
 export function useCustomers() {
   return useSyncExternalStore(
     (cb) => { listeners.add(cb); return () => listeners.delete(cb); },

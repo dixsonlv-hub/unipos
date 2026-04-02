@@ -1,19 +1,20 @@
 import React, { useState, useMemo } from "react";
 import { useSearchParams } from "react-router-dom";
-import { MapPin, ArrowRight, ShoppingCart, X, Minus, Plus, Trash2, CheckCircle2, CreditCard, QrCode, Loader2, ChevronLeft } from "lucide-react";
+import { MapPin, ArrowRight, ShoppingCart, X, Minus, Plus, Trash2, CheckCircle2, CreditCard, QrCode, Loader2, ChevronLeft, Gift, Star, TicketPercent } from "lucide-react";
 import { tables } from "@/data/mock-data";
 import { useSettings } from "@/state/settings-store";
-import { addPoints, type Customer } from "@/state/customer-store";
+import { addPoints, getAvailableCoupons, applyCoupon, redeemPoints, type Customer, type Coupon } from "@/state/customer-store";
 import { QRMemberAuth } from "@/components/qr/QRMemberAuth";
 import { QRMenuBrowser, type QRCartItem } from "@/components/qr/QRMenuBrowser";
 
 type Step = "table" | "auth" | "menu" | "cart" | "payment" | "complete";
 
-function calcTotals(items: QRCartItem[]) {
+function calcTotals(items: QRCartItem[], couponDiscount = 0, pointsDiscount = 0) {
   const subtotal = items.reduce((s, i) => s + (i.price + i.modifiers.reduce((a, m) => a + m.price, 0)) * i.quantity, 0);
-  const svc = Math.round(subtotal * 10) / 100;
-  const gst = Math.round((subtotal + svc) * 9) / 100;
-  return { subtotal, svc, gst, total: Math.round((subtotal + svc + gst) * 100) / 100 };
+  const discounted = Math.max(0, subtotal - couponDiscount - pointsDiscount);
+  const svc = Math.round(discounted * 10) / 100;
+  const gst = Math.round((discounted + svc) * 9) / 100;
+  return { subtotal, discounted, svc, gst, total: Math.round((discounted + svc + gst) * 100) / 100 };
 }
 
 const QROrdering: React.FC = () => {
@@ -28,9 +29,15 @@ const QROrdering: React.FC = () => {
   const [payMethod, setPayMethod] = useState<"card" | "qr">("card");
   const [processing, setProcessing] = useState(false);
   const [orderNumber, setOrderNumber] = useState("");
+  const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
+  const [pointsToRedeem, setPointsToRedeem] = useState(0);
 
-  const totals = useMemo(() => calcTotals(cart), [cart]);
+  const rawSubtotal = cart.reduce((s, i) => s + (i.price + i.modifiers.reduce((a, m) => a + m.price, 0)) * i.quantity, 0);
+  const couponDiscount = selectedCoupon ? applyCoupon(selectedCoupon, rawSubtotal) : 0;
+  const pointsDiscount = pointsToRedeem / 10; // 10 points = $1
+  const totals = useMemo(() => calcTotals(cart, couponDiscount, pointsDiscount), [cart, couponDiscount, pointsDiscount]);
   const validTable = tables.find(t => t.number === tableNum || t.id === tableNum);
+  const availableCoupons = customer ? getAvailableCoupons(customer) : [];
 
   const handleTableConfirm = () => {
     if (validTable || tableNum.trim()) {
@@ -57,10 +64,12 @@ const QROrdering: React.FC = () => {
 
   const handlePay = async (method: "now" | "later") => {
     if (method === "later") {
-      // Pay at counter
       const num = `QR-${Date.now().toString(36).toUpperCase().slice(-6)}`;
       setOrderNumber(num);
-      if (customer) addPoints(customer.id, Math.floor(totals.total), `QR Order #${num}`);
+      if (customer) {
+        if (pointsToRedeem > 0) redeemPoints(customer.id, pointsToRedeem, `Redeemed for QR Order #${num}`);
+        addPoints(customer.id, Math.floor(totals.total), `QR Order #${num}`);
+      }
       setStep("complete");
       return;
     }
@@ -68,7 +77,10 @@ const QROrdering: React.FC = () => {
     await new Promise(r => setTimeout(r, 2000));
     const num = `QR-${Date.now().toString(36).toUpperCase().slice(-6)}`;
     setOrderNumber(num);
-    if (customer) addPoints(customer.id, Math.floor(totals.total), `QR Order #${num}`);
+    if (customer) {
+      if (pointsToRedeem > 0) redeemPoints(customer.id, pointsToRedeem, `Redeemed for QR Order #${num}`);
+      addPoints(customer.id, Math.floor(totals.total), `QR Order #${num}`);
+    }
     setProcessing(false);
     setStep("complete");
   };
@@ -137,9 +149,94 @@ const QROrdering: React.FC = () => {
               </div>
             </div>
           ))}
+
+          {/* Member Benefits Section */}
+          {customer && (
+            <div className="rounded-2xl border border-primary/20 bg-primary/5 p-4 space-y-3">
+              <div className="flex items-center gap-2">
+                <Star className="w-4 h-4 text-primary" />
+                <span className="font-bold text-sm text-foreground">Member Benefits</span>
+                <span className="ml-auto text-xs font-semibold text-primary capitalize">{customer.tier}</span>
+              </div>
+
+              {/* Points */}
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-xs text-muted-foreground">Available Points</p>
+                  <p className="text-lg font-bold text-foreground">{customer.points.toLocaleString()}</p>
+                  <p className="text-[10px] text-muted-foreground">10 pts = $1.00 discount</p>
+                </div>
+                {customer.points >= 10 && (
+                  <div className="flex items-center gap-1.5">
+                    {[100, 200, 500].filter(p => p <= customer.points).map(pts => (
+                      <button key={pts} onClick={() => setPointsToRedeem(pointsToRedeem === pts ? 0 : pts)}
+                        className={`px-2.5 py-1.5 rounded-lg text-[11px] font-bold transition-colors ${
+                          pointsToRedeem === pts
+                            ? "bg-primary text-primary-foreground"
+                            : "bg-background border border-border text-foreground hover:bg-accent"
+                        }`}>
+                        {pts}pts
+                      </button>
+                    ))}
+                  </div>
+                )}
+              </div>
+              {pointsToRedeem > 0 && (
+                <div className="flex items-center justify-between text-xs bg-background rounded-lg px-3 py-2">
+                  <span className="text-muted-foreground">Points discount</span>
+                  <span className="font-bold text-primary">-${(pointsToRedeem / 10).toFixed(2)}</span>
+                </div>
+              )}
+
+              {/* Coupons */}
+              {availableCoupons.length > 0 && (
+                <div className="space-y-2">
+                  <div className="flex items-center gap-1.5">
+                    <TicketPercent className="w-3.5 h-3.5 text-primary" />
+                    <span className="text-xs font-semibold text-foreground">Coupons</span>
+                  </div>
+                  {availableCoupons.map(c => {
+                    const isSelected = selectedCoupon?.id === c.id;
+                    const discount = applyCoupon(c, rawSubtotal);
+                    const eligible = rawSubtotal >= c.minSpend;
+                    return (
+                      <button key={c.id} disabled={!eligible}
+                        onClick={() => setSelectedCoupon(isSelected ? null : c)}
+                        className={`w-full flex items-center justify-between p-3 rounded-xl border transition-colors text-left ${
+                          isSelected
+                            ? "border-primary bg-primary/10"
+                            : eligible
+                              ? "border-border bg-background hover:bg-accent"
+                              : "border-border bg-muted/50 opacity-50"
+                        }`}>
+                        <div>
+                          <p className="text-xs font-semibold text-foreground">{c.label}</p>
+                          <p className="text-[10px] text-muted-foreground">
+                            {c.minSpend > 0 ? `Min. spend $${c.minSpend}` : "No min. spend"} · Code: {c.code}
+                          </p>
+                        </div>
+                        {eligible && (
+                          <span className="text-xs font-bold text-primary shrink-0">
+                            {isSelected ? "✓" : `-$${discount.toFixed(2)}`}
+                          </span>
+                        )}
+                      </button>
+                    );
+                  })}
+                </div>
+              )}
+            </div>
+          )}
         </div>
+
         <div className="p-4 border-t border-border space-y-2">
           <div className="flex justify-between text-sm"><span className="text-muted-foreground">Subtotal</span><span>${totals.subtotal.toFixed(2)}</span></div>
+          {(couponDiscount > 0 || pointsDiscount > 0) && (
+            <div className="flex justify-between text-xs text-primary">
+              <span>Discount</span>
+              <span>-${(couponDiscount + pointsDiscount).toFixed(2)}</span>
+            </div>
+          )}
           <div className="flex justify-between text-xs"><span className="text-muted-foreground">Service 10%</span><span>${totals.svc.toFixed(2)}</span></div>
           <div className="flex justify-between text-xs"><span className="text-muted-foreground">GST 9%</span><span>${totals.gst.toFixed(2)}</span></div>
           <div className="flex justify-between font-bold text-lg pt-2 border-t border-border">
@@ -221,7 +318,11 @@ const QROrdering: React.FC = () => {
           <p className="text-3xl font-black text-primary text-center">{orderNumber}</p>
         </div>
         {customer && (
-          <p className="text-sm text-primary mb-8">✨ {Math.floor(totals.total)} points earned!</p>
+          <div className="text-center space-y-1 mb-8">
+            <p className="text-sm text-primary">✨ {Math.floor(totals.total)} points earned!</p>
+            {pointsToRedeem > 0 && <p className="text-xs text-muted-foreground">{pointsToRedeem} points redeemed</p>}
+            {selectedCoupon && <p className="text-xs text-muted-foreground">Coupon "{selectedCoupon.code}" applied</p>}
+          </div>
         )}
         <p className="text-sm text-muted-foreground text-center max-w-xs">
           Your order has been sent to the kitchen. You can close this page now.
@@ -236,7 +337,7 @@ const QROrdering: React.FC = () => {
       <div className="sticky top-0 z-30 bg-card border-b border-border px-4 py-3 flex items-center justify-between">
         <div>
           <p className="text-xs text-muted-foreground">Table {tableNum}</p>
-          {customer && <p className="text-xs text-primary font-medium">Hi, {customer.name} 👋</p>}
+          {customer && <p className="text-xs text-primary font-medium">Hi, {customer.name} 👋 · {customer.points} pts</p>}
         </div>
         <button onClick={() => setStep("cart")} className="relative p-2">
           <ShoppingCart className="w-5 h-5" />
