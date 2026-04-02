@@ -1,26 +1,30 @@
 import React, { useState } from "react";
-import { Minus, Plus, Trash2, Users, UtensilsCrossed, Percent, TicketPercent, SplitSquareVertical } from "lucide-react";
+import { Minus, Plus, Trash2, Users, UtensilsCrossed, Percent, TicketPercent, SplitSquareVertical, Star, Gift } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { type Order, type Table } from "@/data/mock-data";
 import { useLanguage } from "@/hooks/useLanguage";
+import { type Customer, getAvailableCoupons, applyCoupon, type Coupon } from "@/state/customer-store";
 
 interface CheckPanelProps {
   order: Order | null;
   table?: Table;
+  customer?: Customer | null;
   onUpdateQuantity: (itemId: string, delta: number) => void;
   onRemoveItem: (itemId: string) => void;
   onPay: () => void;
   onApplyDiscount?: (amount: number) => void;
 }
 
-export const CheckPanel: React.FC<CheckPanelProps> = ({ order, table, onUpdateQuantity, onRemoveItem, onPay, onApplyDiscount }) => {
+export const CheckPanel: React.FC<CheckPanelProps> = ({ order, table, customer, onUpdateQuantity, onRemoveItem, onPay, onApplyDiscount }) => {
   const { t } = useLanguage();
   const [promoCode, setPromoCode] = useState("");
   const [promoApplied, setPromoApplied] = useState(false);
   const [manualDiscount, setManualDiscount] = useState(0);
   const [showSplit, setShowSplit] = useState(false);
   const [splitCount, setSplitCount] = useState(2);
+  const [selectedCoupon, setSelectedCoupon] = useState<Coupon | null>(null);
+  const [pointsToUse, setPointsToUse] = useState(0);
 
   if (!order) {
     return (
@@ -31,12 +35,16 @@ export const CheckPanel: React.FC<CheckPanelProps> = ({ order, table, onUpdateQu
     );
   }
 
-  const discountAmount = manualDiscount + (promoApplied ? order.subtotal * 0.1 : 0);
+  const couponDiscount = selectedCoupon ? applyCoupon(selectedCoupon, order.subtotal) : 0;
+  const pointsDiscount = pointsToUse / 10;
+  const discountAmount = manualDiscount + (promoApplied ? order.subtotal * 0.1 : 0) + couponDiscount + pointsDiscount;
   const adjustedSubtotal = Math.max(0, order.subtotal - discountAmount);
   const serviceCharge = Math.round(adjustedSubtotal * 0.1 * 100) / 100;
   const gst = Math.round((adjustedSubtotal + serviceCharge) * 0.09 * 100) / 100;
   const total = Math.round((adjustedSubtotal + serviceCharge + gst) * 100) / 100;
   const splitAmount = showSplit ? Math.round((total / splitCount) * 100) / 100 : 0;
+
+  const availableCoupons = customer ? getAvailableCoupons(customer) : [];
 
   const handleApplyPromo = () => {
     if (promoCode.toLowerCase() === "welcome10" || promoCode.toLowerCase() === "vip10") {
@@ -115,6 +123,60 @@ export const CheckPanel: React.FC<CheckPanelProps> = ({ order, table, onUpdateQu
         )}
       </div>
 
+      {/* Member Benefits */}
+      {customer && order.items.length > 0 && (
+        <div className="px-3 py-2 border-t border-border space-y-2">
+          <div className="flex items-center gap-1.5">
+            <Star className="h-3 w-3 text-primary" />
+            <span className="text-[11px] font-bold text-foreground">{customer.name}</span>
+            <span className="ml-auto text-[10px] font-semibold text-primary capitalize">{customer.tier} · {customer.points} pts</span>
+          </div>
+          {/* Points redemption */}
+          {customer.points >= 10 && (
+            <div className="flex items-center gap-1">
+              <span className="text-[10px] text-muted-foreground shrink-0">Use pts:</span>
+              {[100, 200, 500].filter(p => p <= customer.points).map(pts => (
+                <button key={pts} onClick={() => setPointsToUse(pointsToUse === pts ? 0 : pts)}
+                  className={cn("px-1.5 py-0.5 rounded text-[10px] font-bold transition-colors",
+                    pointsToUse === pts
+                      ? "bg-primary text-primary-foreground"
+                      : "bg-accent text-muted-foreground hover:bg-secondary"
+                  )}>
+                  {pts}
+                </button>
+              ))}
+              {pointsToUse > 0 && (
+                <span className="ml-auto text-[10px] font-bold text-primary">-${(pointsToUse / 10).toFixed(2)}</span>
+              )}
+            </div>
+          )}
+          {/* Coupons */}
+          {availableCoupons.length > 0 && (
+            <div className="space-y-1">
+              {availableCoupons.slice(0, 3).map(c => {
+                const isSelected = selectedCoupon?.id === c.id;
+                const eligible = order.subtotal >= c.minSpend;
+                return (
+                  <button key={c.id} disabled={!eligible}
+                    onClick={() => setSelectedCoupon(isSelected ? null : c)}
+                    className={cn("w-full flex items-center gap-2 px-2 py-1.5 rounded-md text-left transition-colors",
+                      isSelected ? "bg-primary/10 border border-primary" : eligible ? "bg-accent hover:bg-secondary border border-transparent" : "bg-muted/30 opacity-50 border border-transparent"
+                    )}>
+                    <TicketPercent className="h-3 w-3 text-primary shrink-0" />
+                    <span className="text-[10px] font-medium text-foreground truncate flex-1">{c.label}</span>
+                    {eligible && (
+                      <span className="text-[10px] font-bold text-primary shrink-0">
+                        {isSelected ? "✓" : `-$${applyCoupon(c, order.subtotal).toFixed(2)}`}
+                      </span>
+                    )}
+                  </button>
+                );
+              })}
+            </div>
+          )}
+        </div>
+      )}
+
       {/* Discount Section */}
       {order.items.length > 0 && (
         <div className="px-4 py-2 border-t border-border space-y-2">
@@ -190,6 +252,9 @@ export const CheckPanel: React.FC<CheckPanelProps> = ({ order, table, onUpdateQu
           <span>{t("total")}</span>
           <span className="font-mono">${total.toFixed(2)}</span>
         </div>
+        {customer && (
+          <p className="text-[10px] text-primary text-center">🎉 Earn {Math.floor(total)} pts on this order</p>
+        )}
         <Button variant="pay" size="xl" className="w-full mt-2 rounded-lg" disabled={order.items.length === 0} onClick={onPay}>
           {t("pay")} ${total.toFixed(2)}
         </Button>
