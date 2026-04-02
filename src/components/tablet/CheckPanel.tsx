@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Minus, Plus, Trash2, Users, UtensilsCrossed, Percent, TicketPercent, SplitSquareVertical, Star, Gift } from "lucide-react";
+import { Minus, Plus, Trash2, Users, UtensilsCrossed, Percent, TicketPercent, SplitSquareVertical, Star, Gift, XCircle } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { type Order, type Table } from "@/data/mock-data";
@@ -14,6 +14,8 @@ interface CheckPanelProps {
   onRemoveItem: (itemId: string) => void;
   onPay: () => void;
   onApplyDiscount?: (amount: number) => void;
+  onCancelOrder?: () => void;
+  canCancel?: boolean;
 }
 
 export const CheckPanel: React.FC<CheckPanelProps> = ({ order, table, customer, onUpdateQuantity, onRemoveItem, onPay, onApplyDiscount }) => {
