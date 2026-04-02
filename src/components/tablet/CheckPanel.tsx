@@ -257,6 +257,11 @@ export const CheckPanel: React.FC<CheckPanelProps> = ({ order, table, customer, 
         {customer && (
           <p className="text-[10px] text-primary text-center">🎉 Earn {Math.floor(total)} pts on this order</p>
         )}
+        {canCancel && onCancelOrder && (
+          <Button variant="destructive" size="sm" className="w-full mt-2 rounded-lg text-xs gap-1.5" onClick={onCancelOrder}>
+            <XCircle className="h-3.5 w-3.5" />Cancel Order
+          </Button>
+        )}
         <Button variant="pay" size="xl" className="w-full mt-2 rounded-lg" disabled={order.items.length === 0} onClick={onPay}>
           {t("pay")} ${total.toFixed(2)}
         </Button>
