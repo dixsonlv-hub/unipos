@@ -17,6 +17,13 @@ export interface Table {
   elapsedMinutes?: number;
   orderId?: string;
   mergedWith?: string[]; // IDs of tables merged with this one
+  reservationName?: string;
+  reservationPhone?: string;
+  reservationCustomerId?: string;
+  reservationAt?: string;
+  reservationNotes?: string;
+  linkedCustomerId?: string;
+  linkedCustomerName?: string;
 }
 
 export interface MenuItem {
