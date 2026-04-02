@@ -1,17 +1,15 @@
 import React, { useState, useEffect } from "react";
 import {
   ChefHat, CheckCircle2, Clock, AlertCircle, MessageSquare, Package,
-  PlayCircle, Check, XCircle, UtensilsCrossed
+  UtensilsCrossed
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
   useKDSTickets, getTicketUrgency, getElapsedMin,
-  startPreparing, markReady, markServed, cancelTicket,
   type KDSTicket, type KDSTicketStatus
 } from "@/state/kds-store";
 
-function TicketCard({ ticket, mode }: { ticket: KDSTicket; mode: "kitchen" | "server" }) {
+function TicketCard({ ticket }: { ticket: KDSTicket }) {
   const urgency = getTicketUrgency(ticket);
   const elapsed = getElapsedMin(ticket.startedAt || ticket.firedAt);
   const isCancelled = ticket.status === "cancelled";
@@ -39,6 +37,12 @@ function TicketCard({ ticket, mode }: { ticket: KDSTicket; mode: "kitchen" | "se
             ) : (
               <span className="text-[10px] text-muted-foreground font-mono uppercase">{ticket.serviceMode}</span>
             )}
+            <span className={`text-[10px] font-bold px-1.5 py-0.5 rounded ${
+              ticket.status === "new" ? "bg-primary/10 text-primary" :
+              ticket.status === "preparing" ? "bg-status-amber/10 text-status-amber" :
+              ticket.status === "ready" ? "bg-status-green/10 text-status-green" :
+              "bg-destructive/10 text-destructive"
+            }`}>{ticket.status.toUpperCase()}</span>
           </div>
           <div className="flex items-center gap-1.5">
             {urgency === "red" && !isCancelled && <AlertCircle className="h-3.5 w-3.5 text-destructive" />}
@@ -114,27 +118,6 @@ function TicketCard({ ticket, mode }: { ticket: KDSTicket; mode: "kitchen" | "se
           <span className="text-[9px] text-muted-foreground">SERVED</span>
         </div>
       </div>
-
-      {/* Actions */}
-      {!isCancelled && (
-        <div className="mt-3 flex gap-2">
-          {mode === "kitchen" && ticket.status === "new" && (
-            <Button size="sm" className="flex-1 rounded-lg text-xs h-8" onClick={() => startPreparing(ticket.id)}>
-              <PlayCircle className="h-3.5 w-3.5 mr-1" />Start
-            </Button>
-          )}
-          {mode === "kitchen" && ticket.status === "preparing" && (
-            <Button size="sm" className="flex-1 rounded-lg text-xs h-8 bg-status-green hover:bg-status-green/90 text-white" onClick={() => markReady(ticket.id)}>
-              <Check className="h-3.5 w-3.5 mr-1" />Done
-            </Button>
-          )}
-          {mode === "server" && ticket.status === "ready" && (
-            <Button size="sm" className="flex-1 rounded-lg text-xs h-8 bg-status-green hover:bg-status-green/90 text-white" onClick={() => markServed(ticket.id)}>
-              <UtensilsCrossed className="h-3.5 w-3.5 mr-1" />Served
-            </Button>
-          )}
-        </div>
-      )}
     </div>
   );
 }
@@ -160,6 +143,7 @@ const AdminKDS: React.FC = () => {
           <h1 className="text-2xl font-bold text-foreground tracking-tight">KDS Monitor</h1>
           <p className="text-[13px] text-muted-foreground mt-1">
             {mode === "kitchen" ? `${activeTickets.length} active tickets` : `${serverTickets.length} ready for collection`}
+            <span className="ml-2 text-[11px] text-primary font-medium">View only</span>
           </p>
         </div>
         <Tabs value={mode} onValueChange={v => setMode(v as typeof mode)}>
@@ -206,7 +190,7 @@ const AdminKDS: React.FC = () => {
                   }`}>{statusTickets.filter(t => t.status === status).length}</span>
                 </div>
                 <div className="space-y-3">
-                  {statusTickets.map(t => <TicketCard key={t.id} ticket={t} mode="kitchen" />)}
+                  {statusTickets.map(t => <TicketCard key={t.id} ticket={t} />)}
                   {statusTickets.length === 0 && (
                     <div className="uniweb-card p-6 flex items-center justify-center">
                       <span className="text-xs text-muted-foreground">No tickets</span>
@@ -225,7 +209,7 @@ const AdminKDS: React.FC = () => {
               <span className="text-sm text-muted-foreground">All orders served</span>
             </div>
           ) : (
-            serverTickets.map(t => <TicketCard key={t.id} ticket={t} mode="server" />)
+            serverTickets.map(t => <TicketCard key={t.id} ticket={t} />)
           )}
         </div>
       )}
