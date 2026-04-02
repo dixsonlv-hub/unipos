@@ -18,7 +18,7 @@ interface CheckPanelProps {
   canCancel?: boolean;
 }
 
-export const CheckPanel: React.FC<CheckPanelProps> = ({ order, table, customer, onUpdateQuantity, onRemoveItem, onPay, onApplyDiscount }) => {
+export const CheckPanel: React.FC<CheckPanelProps> = ({ order, table, customer, onUpdateQuantity, onRemoveItem, onPay, onApplyDiscount, onCancelOrder, canCancel }) => {
   const { t } = useLanguage();
   const [promoCode, setPromoCode] = useState("");
   const [promoApplied, setPromoApplied] = useState(false);
