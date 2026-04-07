@@ -1,128 +1,173 @@
 
 
-# KDS Overhaul + Inventory Intelligence + Service Mode Config
+# Merchant Login + Finance Integration + PRD Gap Analysis
 
 ## Overview
 
-Three interconnected feature sets across ~15 file changes:
-
-1. **KDS Kitchen** — Interactive ticket workflow with time-based color coding, cancel notifications, and a dedicated front-of-house "Collection/Serve" screen accessible from the homepage
-2. **Inventory Intelligence** — Supplier price comparison, daily COGS tracking, stock-driven promotions/sold-out, and deeper menu-ingredient linkage
-3. **Service Mode** — Fast-food vs Restaurant mode toggle in admin settings, controlling order flow (pay-first vs fire-first)
-
----
-
-## 1. KDS Overhaul
-
-### 1a. Interactive KDS with time-based colors (`src/pages/admin/AdminKDS.tsx` rewrite)
-
-- Add **mode toggle** at top: "Kitchen" vs "Server/Collection" (tabs or segmented control)
-- **Kitchen mode**:
-  - Tickets are interactive — chef clicks "Start" (new→preparing), "Done" (preparing→ready)
-  - Time-based color: green border (0–5min), amber (5–10min), red+pulse (>10min) — computed from `firedAt`
-  - Cancelled tickets show with a red "CANCELLED" overlay banner + strikethrough, auto-dismiss after 10s
-- **Server/Collection mode**:
-  - Shows only `ready` tickets in a large grid (optimized for wall-mounted screen)
-  - Staff clicks "Collected" / "Served" → ticket disappears (status→served)
-  - For kiosk orders: shows collection number prominently (e.g. "#A023")
-  - For dine-in: shows table number
-
-### 1b. KDS store (`src/state/kds-store.ts` — new)
-
-- Centralized ticket state derived from orders, with mutation functions:
-  - `startPreparing(ticketId)` — new→preparing, records `startedAt`
-  - `markReady(ticketId)` — preparing→ready
-  - `markServed(ticketId)` — ready→served
-  - `cancelTicket(ticketId)` — any→cancelled, adds `cancelledAt`
-- Emits to all listeners (KDS screen + collection screen react in real-time)
-- `getTicketUrgency(ticket)` → "green" | "amber" | "red" based on elapsed time
-
-### 1c. Homepage KDS entry (`src/pages/Index.tsx`)
-
-- Add "KDS" card to the surface selector grid (6th card alongside Tablet, Mobile, Kiosk, QR, Admin)
-
-### 1d. Standalone KDS page (`src/pages/KDSDisplay.tsx` — new)
-
-- Full-screen KDS page at `/kds` route (no admin chrome)
-- Same Kitchen/Server mode toggle as admin version
-- Designed for wall-mounted screens — large text, high contrast
-
-### 1e. Cancel order flow
-
-- When an order is cancelled (via Tablet POS or Admin), `cancelTicket()` is called
-- KDS kitchen view shows cancelled ticket briefly with red "CANCELLED" banner
-- Prevents kitchen from cooking already-cancelled items
+This plan covers three major areas:
+1. **Merchant Login Page** — Supabase auth-backed login with the premium animated design from the uploaded HTML reference
+2. **Finance & Reconciliation overhaul** — Upgrade from simple static page to the full payment acquirer dashboard (Transactions, Settlements, Payment Methods breakdown, Geo data) matching the uploaded merchant portal HTML
+3. **PRD gap remediation** — Fill all remaining functional gaps between the current codebase and the PRD
 
 ---
 
-## 2. Inventory Intelligence
+## 1. Merchant Login & Auth Protection
 
-### 2a. Menu-Ingredient Recipe Linkage (`src/state/inventory-store.ts`)
+### 1a. Database Setup
 
-- Expand `InventoryItem` with `supplierPrices?: { supplier: string; unitCost: number; lastQuoted: string }[]` for multi-supplier comparison
-- Existing `linkedMenuItemIds` + `quantityPerServing` already handles per-dish ingredient mapping — this is the recipe linkage
+Create a `profiles` table linked to `auth.users`:
+- `id` (uuid, FK → auth.users)
+- `full_name`, `email`, `role` (text)
+- `merchant_id` (text)
+- Auto-create profile on signup via trigger
+- RLS: users can read/update own profile
 
-### 2b. Supplier Price Comparison (new tab in `AdminInventory.tsx`)
+Enable **auto-confirm email** for development (since this is a commercial prototype, not production email verification yet).
 
-- Add "Suppliers" tab showing per-item price comparison across suppliers
-- Highlight cheapest supplier per item
+### 1b. Login Page (`src/pages/Login.tsx` — new)
 
-### 2c. Daily COGS Summary (new tab in `AdminInventory.tsx`)
+Recreate the premium login experience from the uploaded HTML:
+- Deep blue gradient background with animated floating blobs (CSS keyframes)
+- Canvas-based particle noise effect
+- Frosted-glass login card with email + password fields
+- Glowing focus ring effect on input focus
+- Loading state animation on "Sign In" button
+- Footer with MAS license text
+- Calls `supabase.auth.signInWithPassword()`
 
-- "Daily Summary" tab with:
-  - Total items sold today (from movement log, type="sale")
-  - COGS = sum of (qty sold × costPerUnit) for each ingredient
-  - COGS % = COGS / Revenue (revenue from sales data)
-  - Bar chart or simple table breakdown by category
+### 1c. Auth Guard
 
-### 2d. Stock-driven promotions & sold-out (`src/state/inventory-store.ts`)
+- Create `src/components/AuthGuard.tsx` — wraps protected routes
+- Checks `supabase.auth.getSession()` and `onAuthStateChange`
+- Redirects to `/login` if not authenticated
+- Admin routes (`/admin/*`) protected by AuthGuard
+- POS routes (`/tablet`, `/mobile`, `/kds`) also protected
+- Public routes: `/`, `/login`, `/qr`, `/kiosk`, `/queue` remain open
 
-- `getOverstockItems()` — items where currentStock > reorderPoint × 3 → suggest promotion
-- `getOutOfStockMenuItems()` — cross-reference with `linkedMenuItemIds` to find menu items that should show "Sold Out"
-- QR menu browser + Kiosk menu check `isItemAvailableByStock(menuItemId)` before allowing order
+### 1d. Sign Out
 
-### 2e. Inventory tab in AdminMenu
+- Wire the existing "Sign Out" button in `AdminLayout.tsx` to `supabase.auth.signOut()`
+- Redirect to `/login` after sign out
 
-- In `AdminMenu.tsx`, each menu item card shows linked ingredients + per-serving quantity
-- "Recipe" section showing which raw materials and how many grams each dish uses
+### 1e. Routing Changes (`App.tsx`)
+
+- Add `/login` route
+- Wrap admin and POS routes with `<AuthGuard>`
 
 ---
 
-## 3. Service Mode — Fast Food vs Restaurant
+## 2. Finance & Reconciliation Overhaul
 
-### 3a. Settings store (`src/state/settings-store.ts`)
+The uploaded HTML shows a sophisticated merchant portal with Dashboard, Transactions, Settlements, Outlets, Reports, Users, and Settings pages. Currently `AdminFinance.tsx` is a basic static page.
 
-- Add `serviceType: "fast-food" | "restaurant"` to `MerchantSettings`
-- Fast-food: pay first → fire to kitchen (Kiosk-style flow)
-- Restaurant: fire to kitchen first → pay after eating
+### 2a. Rewrite `AdminFinance.tsx` with tabs
 
-### 3b. Admin Settings UI (`src/pages/admin/AdminSettings.tsx`)
+Add **4 tabs** matching the merchant portal:
 
-- Add "Service Mode" card with radio toggle: Fast Food / Restaurant
-- Description explaining the order flow difference
+**Tab 1: Overview (default)**
+- 4 KPI cards: Total GMV, Transactions, Total Refunds, Net Settled
+- Sales Trend chart (daily GMV line chart using recharts)
+- Payment Methods breakdown panel (Card/Visa/MC/UnionPay, Alipay+, WeChat Pay, PayNow with progress bars)
+- Recent Transactions mini-table
+- Card Issuing Countries geo breakdown
 
-### 3c. Flow impact
+**Tab 2: Transactions**
+- Full transaction table with filters (Outlet, Method, Status, Date)
+- Columns: Transaction ID, Outlet, Amount, Method, Scheme, Issuer Country, Status, Date/Time, Net
+- Export CSV button
+- Pagination
 
-- TabletPOS + MobilePOS read `settings.serviceType` to determine:
-  - Fast-food: "Pay" button appears before "Send to Kitchen"
-  - Restaurant: "Send to Kitchen" first, "Pay" only after items served
-- This is a UI logic change in existing POS pages (conditional button order)
+**Tab 3: Settlements**
+- 3 KPI cards: Total Settled, Fees Deducted, Settlement Bank
+- Settlement batch table with Date, Batch ID, Gross, Fees, Net Payout, Report download
+
+**Tab 4: Reports**
+- Report cards: Monthly Summary, Payment Breakdown, Settlement Summary
+- Report History table with download buttons
+
+### 2b. Data Source
+
+Initially use comprehensive mock data matching the uploaded HTML (Song Fa data). Structure the code so it can later be swapped to real Supabase queries.
+
+---
+
+## 3. PRD Gap Remediation
+
+After thorough comparison of the PRD (sections 1-14) vs current codebase, these gaps need fixing:
+
+### 3a. Already implemented ✓
+- Route structure (all routes present)
+- 6 homepage entry cards
+- KDS Kitchen/Server modes with time-based colors
+- KDS cancel notification
+- Admin KDS read-only
+- Service mode toggle (fast-food/restaurant)
+- Inventory with supplier comparison, COGS
+- Settings with QR/Kiosk/Service mode config
+- Collapsible sidebar, Back to Home, Sign Out in AdminLayout
+- Order cancel rules (only when status=sent and KDS tickets=new)
+
+### 3b. Missing: Supabase Database Tables
+
+The PRD lists these tables as required (§8.2). Currently NO tables exist. Create migration:
+
+- `orders` (id, table_id, table_number, service_mode, serve_together, status, guest_count, created_at, subtotal, service_charge, gst, total, customer_id, payment_captured)
+- `order_items` (id, order_id FK, menu_item_id, name, price, quantity, notes, seat, status, fired_at)
+- `order_item_modifiers` (id, order_item_id FK, name, price)
+- `customers` (id, name, phone, email, date_of_birth, address, tags, visits, points, tier, total_spend, average_ticket, stored_balance, total_top_up, preferred_items, notes, last_visit, created_at, segment)
+- `membership_tiers` (id, name, min_spend, min_visits, discount_pct, top_up_bonus_pct, perks, sort_order)
+- `member_wallet_transactions` (id, customer_id FK, type, amount, balance_after, description, created_at)
+- `profiles` (for auth, as described in §1a)
+
+Add RLS policies:
+- Authenticated users can CRUD on all business tables
+- Profiles: users read/update own only
+
+### 3c. Missing: Dashboard Supabase Integration
+
+PRD §7.2 requires Dashboard to pull from Supabase `orders` with realtime subscription.
+
+- Update `AdminDashboard.tsx` to query `orders` table
+- Add `supabase_realtime` publication for `orders`
+- Fall back to mock data if table is empty
+
+### 3d. Missing: Member Wallet Top-up Flow
+
+PRD §6.5 mentions "快速充值" (quick top-up) in POS member panel. The existing `CheckPanel` shows coupons/points but no top-up. This was referenced in PRD but likely deferred — will add a simple top-up button in member sheet.
+
+### 3e. Missing: serveTogether KDS Logic
+
+PRD §6.6 specifies:
+- Default: item-level tickets
+- If `serveTogether = true` or notes match "serve together" / "一起上": group as whole-order card
+
+Current KDS creates item-level tickets. Need to add the serve-together grouping logic in `kds-store.ts` and reflect in KDS display.
 
 ---
 
 ## Files Summary
 
 **New files (3)**:
-- `src/state/kds-store.ts` — centralized KDS ticket state
-- `src/pages/KDSDisplay.tsx` — standalone full-screen KDS page
+- `src/pages/Login.tsx` — premium login page
+- `src/components/AuthGuard.tsx` — auth protection wrapper
 
-**Modified files (~8)**:
-- `src/pages/admin/AdminKDS.tsx` — interactive tickets, time colors, kitchen/server mode, cancel display
-- `src/pages/admin/AdminInventory.tsx` — supplier comparison tab, daily COGS tab
-- `src/state/inventory-store.ts` — supplier prices, overstock detection, stock availability check
-- `src/state/settings-store.ts` — add `serviceType` field
-- `src/pages/admin/AdminSettings.tsx` — service mode toggle card
-- `src/pages/admin/AdminMenu.tsx` — recipe/ingredient display per menu item
-- `src/pages/Index.tsx` — add KDS card
-- `src/App.tsx` — add `/kds` route
+**Modified files (~7)**:
+- `src/App.tsx` — add `/login` route, wrap routes with AuthGuard
+- `src/pages/admin/AdminLayout.tsx` — wire Sign Out to supabase.auth.signOut()
+- `src/pages/admin/AdminFinance.tsx` — full rewrite with 4-tab finance dashboard
+- `src/pages/admin/AdminDashboard.tsx` — integrate with Supabase orders (with fallback)
+- `src/state/kds-store.ts` — add serveTogether grouping logic
+- `src/pages/KDSDisplay.tsx` — render grouped order cards for serveTogether
+
+**Database migration**: Create all PRD-specified tables with RLS policies
+
+---
+
+## Technical Notes
+
+- Login page uses CSS `@keyframes` for blob animation and `@property` for glow rotation — same technique as uploaded HTML but implemented in React/Tailwind
+- Finance page uses `recharts` (already available via `chart.tsx`) for the sales trend chart
+- Auth uses `supabase.auth.signInWithPassword()` / `signOut()` with `onAuthStateChange` listener
+- All tables created with `enable row level security` and policies for authenticated users
+- Dashboard realtime uses `ALTER PUBLICATION supabase_realtime ADD TABLE public.orders`
 
