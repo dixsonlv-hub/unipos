@@ -1,6 +1,7 @@
 import React, { useState } from "react";
-import { Outlet, useLocation, Link } from "react-router-dom";
+import { Outlet, useLocation, Link, useNavigate } from "react-router-dom";
 import { NavLink } from "@/components/NavLink";
+import { supabase } from "@/integrations/supabase/client";
 import {
   LayoutDashboard, UtensilsCrossed, Users, Shield, Monitor, BarChart3,
   DollarSign, Settings, LogOut, Bell, Tag, Package, Map, ListOrdered,
