@@ -28,7 +28,13 @@ const navItems = [
 
 const AdminLayout: React.FC = () => {
   const location = useLocation();
+  const navigate = useNavigate();
   const [collapsed, setCollapsed] = useState(false);
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate("/login", { replace: true });
+  };
 
   return (
     <div className="flex h-screen bg-background">
@@ -107,11 +113,13 @@ const AdminLayout: React.FC = () => {
             {collapsed ? <PanelLeft className="h-[15px] w-[15px]" /> : <PanelLeftClose className="h-[15px] w-[15px]" />}
             {!collapsed && "Collapse Sidebar"}
           </button>
-          <button className={cn(
-            "flex items-center gap-2.5 w-full px-2.5 py-[7px] rounded-lg text-[13px] font-medium transition-colors",
-            "text-destructive hover:bg-destructive/10",
-            collapsed && "px-0 justify-center"
-          )}
+          <button
+            onClick={handleSignOut}
+            className={cn(
+              "flex items-center gap-2.5 w-full px-2.5 py-[7px] rounded-lg text-[13px] font-medium transition-colors",
+              "text-destructive hover:bg-destructive/10",
+              collapsed && "px-0 justify-center"
+            )}
             title={collapsed ? "Sign Out" : undefined}
           >
             <LogOut className="h-[15px] w-[15px]" />
