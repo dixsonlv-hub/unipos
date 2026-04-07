@@ -6,9 +6,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Tabs, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import {
-  useKDSTickets, getTicketUrgency, getElapsedMin,
+  useKDSTickets, getTicketUrgency, getElapsedMin, getGroupedTickets, isGroupedOrder,
   startPreparing, markReady, markServed, cancelTicket,
-  type KDSTicket, type KDSTicketStatus
+  type KDSTicket, type KDSTicketStatus, type KDSGroupedOrder
 } from "@/state/kds-store";
 
 const urgencyColors: Record<string, { border: string; bg: string }> = {
@@ -121,6 +121,61 @@ function TicketCard({ ticket, mode }: { ticket: KDSTicket; mode: "kitchen" | "se
           )}
         </div>
       )}
+    </div>
+  );
+}
+
+/** Grouped order card for serveTogether */
+function GroupedOrderCard({ group, mode }: { group: KDSGroupedOrder; mode: "kitchen" | "server" }) {
+  const elapsed = getElapsedMin(group.earliestFired);
+  const uc = urgencyColors[group.worstUrgency];
+
+  return (
+    <div className={`uniweb-card border-l-4 ${uc.border} p-4 ${group.worstUrgency === "red" ? "animate-pulse" : ""}`}>
+      <div className="flex items-center justify-between mb-3">
+        <div className="flex items-center gap-2">
+          {group.tableNumber ? (
+            <span className="font-bold text-foreground text-base">T{group.tableNumber}</span>
+          ) : (
+            <span className="text-xs text-muted-foreground font-mono uppercase">{group.serviceMode}</span>
+          )}
+          <span className="text-[10px] font-bold px-1.5 py-0.5 rounded bg-primary/10 text-primary">SERVE TOGETHER</span>
+        </div>
+        <span className={`text-[11px] font-bold font-mono ${group.worstUrgency === "red" ? "text-destructive" : "text-muted-foreground"}`}>
+          {elapsed}m
+        </span>
+      </div>
+      <div className="space-y-2">
+        {group.tickets.map(t => (
+          <div key={t.id} className="flex items-center justify-between py-1.5 px-2 rounded-md bg-accent/50">
+            <div className="flex-1">
+              <span className="text-sm font-medium text-foreground">{t.name}</span>
+              {t.modifiers.length > 0 && (
+                <span className="text-[10px] text-muted-foreground ml-2">{t.modifiers.map(m => m.name).join(", ")}</span>
+              )}
+              {t.notes && <span className="text-[10px] text-status-amber ml-2">📝 {t.notes}</span>}
+            </div>
+            <span className="text-xs font-bold bg-accent px-2 py-0.5 rounded-md">×{t.quantity}</span>
+          </div>
+        ))}
+      </div>
+      <div className="mt-3 flex gap-2">
+        {mode === "kitchen" && group.tickets.some(t => t.status === "new") && (
+          <Button size="sm" className="flex-1 rounded-lg text-xs h-8" onClick={() => group.tickets.filter(t => t.status === "new").forEach(t => startPreparing(t.id))}>
+            <PlayCircle className="h-3.5 w-3.5 mr-1" />Start All
+          </Button>
+        )}
+        {mode === "kitchen" && group.tickets.every(t => t.status === "preparing") && (
+          <Button size="sm" className="flex-1 rounded-lg text-xs h-8 bg-status-green hover:bg-status-green/90 text-white" onClick={() => group.tickets.forEach(t => markReady(t.id))}>
+            <Check className="h-3.5 w-3.5 mr-1" />All Done
+          </Button>
+        )}
+        {mode === "server" && group.tickets.every(t => t.status === "ready") && (
+          <Button size="sm" className="flex-1 rounded-lg text-xs h-8 bg-status-green hover:bg-status-green/90 text-white" onClick={() => group.tickets.forEach(t => markServed(t.id))}>
+            <UtensilsCrossed className="h-3.5 w-3.5 mr-1" />Served
+          </Button>
+        )}
+      </div>
     </div>
   );
 }
