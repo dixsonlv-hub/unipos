@@ -194,6 +194,8 @@ const KDSDisplay: React.FC = () => {
   const kitchenStatuses: KDSTicketStatus[] = ["new", "preparing", "ready"];
   const kitchenTickets = tickets.filter(t => kitchenStatuses.includes(t.status) || t.status === "cancelled");
   const serverTickets = tickets.filter(t => t.status === "ready");
+  const groupedKitchen = getGroupedTickets(kitchenTickets);
+  const groupedServer = getGroupedTickets(serverTickets);
 
   return (
     <div className="min-h-screen bg-background p-4">
@@ -237,7 +239,16 @@ const KDSDisplay: React.FC = () => {
                   }`}>{statusTickets.filter(t => t.status === status).length}</span>
                 </div>
                 <div className="space-y-3">
-                  {statusTickets.map(t => <TicketCard key={t.id} ticket={t} mode="kitchen" />)}
+                  {statusTickets.map(t => {
+                    // Check if this ticket is part of a grouped order
+                    const grouped = groupedKitchen.find(g => isGroupedOrder(g) && g.tickets.some(gt => gt.id === t.id));
+                    if (grouped && isGroupedOrder(grouped)) {
+                      // Only render the grouped card once (for first ticket)
+                      if (grouped.tickets[0].id !== t.id) return null;
+                      return <GroupedOrderCard key={grouped.orderId} group={grouped} mode="kitchen" />;
+                    }
+                    return <TicketCard key={t.id} ticket={t} mode="kitchen" />;
+                  })}
                   {statusTickets.length === 0 && (
                     <div className="uniweb-card p-8 flex items-center justify-center">
                       <span className="text-xs text-muted-foreground">No tickets</span>
