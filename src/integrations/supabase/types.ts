@@ -14,7 +14,326 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      customers: {
+        Row: {
+          address: string | null
+          average_ticket: number | null
+          created_at: string
+          date_of_birth: string | null
+          email: string | null
+          id: string
+          last_visit: string | null
+          name: string
+          notes: string | null
+          phone: string | null
+          points: number | null
+          preferred_items: string[] | null
+          segment: string | null
+          stored_balance: number | null
+          tags: string[] | null
+          tier: string | null
+          total_spend: number | null
+          total_top_up: number | null
+          updated_at: string
+          visits: number | null
+        }
+        Insert: {
+          address?: string | null
+          average_ticket?: number | null
+          created_at?: string
+          date_of_birth?: string | null
+          email?: string | null
+          id?: string
+          last_visit?: string | null
+          name: string
+          notes?: string | null
+          phone?: string | null
+          points?: number | null
+          preferred_items?: string[] | null
+          segment?: string | null
+          stored_balance?: number | null
+          tags?: string[] | null
+          tier?: string | null
+          total_spend?: number | null
+          total_top_up?: number | null
+          updated_at?: string
+          visits?: number | null
+        }
+        Update: {
+          address?: string | null
+          average_ticket?: number | null
+          created_at?: string
+          date_of_birth?: string | null
+          email?: string | null
+          id?: string
+          last_visit?: string | null
+          name?: string
+          notes?: string | null
+          phone?: string | null
+          points?: number | null
+          preferred_items?: string[] | null
+          segment?: string | null
+          stored_balance?: number | null
+          tags?: string[] | null
+          tier?: string | null
+          total_spend?: number | null
+          total_top_up?: number | null
+          updated_at?: string
+          visits?: number | null
+        }
+        Relationships: []
+      }
+      member_wallet_transactions: {
+        Row: {
+          amount: number
+          balance_after: number
+          created_at: string
+          customer_id: string
+          description: string | null
+          id: string
+          type: string
+        }
+        Insert: {
+          amount: number
+          balance_after?: number
+          created_at?: string
+          customer_id: string
+          description?: string | null
+          id?: string
+          type: string
+        }
+        Update: {
+          amount?: number
+          balance_after?: number
+          created_at?: string
+          customer_id?: string
+          description?: string | null
+          id?: string
+          type?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "member_wallet_transactions_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      membership_tiers: {
+        Row: {
+          created_at: string
+          discount_pct: number | null
+          id: string
+          min_spend: number | null
+          min_visits: number | null
+          name: string
+          perks: string[] | null
+          sort_order: number | null
+          top_up_bonus_pct: number | null
+        }
+        Insert: {
+          created_at?: string
+          discount_pct?: number | null
+          id?: string
+          min_spend?: number | null
+          min_visits?: number | null
+          name: string
+          perks?: string[] | null
+          sort_order?: number | null
+          top_up_bonus_pct?: number | null
+        }
+        Update: {
+          created_at?: string
+          discount_pct?: number | null
+          id?: string
+          min_spend?: number | null
+          min_visits?: number | null
+          name?: string
+          perks?: string[] | null
+          sort_order?: number | null
+          top_up_bonus_pct?: number | null
+        }
+        Relationships: []
+      }
+      order_item_modifiers: {
+        Row: {
+          id: string
+          name: string
+          order_item_id: string
+          price: number | null
+        }
+        Insert: {
+          id?: string
+          name: string
+          order_item_id: string
+          price?: number | null
+        }
+        Update: {
+          id?: string
+          name?: string
+          order_item_id?: string
+          price?: number | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_item_modifiers_order_item_id_fkey"
+            columns: ["order_item_id"]
+            isOneToOne: false
+            referencedRelation: "order_items"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      order_items: {
+        Row: {
+          created_at: string
+          fired_at: string | null
+          id: string
+          menu_item_id: string | null
+          name: string
+          notes: string | null
+          order_id: string
+          price: number
+          quantity: number
+          seat: number | null
+          status: string
+        }
+        Insert: {
+          created_at?: string
+          fired_at?: string | null
+          id?: string
+          menu_item_id?: string | null
+          name: string
+          notes?: string | null
+          order_id: string
+          price?: number
+          quantity?: number
+          seat?: number | null
+          status?: string
+        }
+        Update: {
+          created_at?: string
+          fired_at?: string | null
+          id?: string
+          menu_item_id?: string | null
+          name?: string
+          notes?: string | null
+          order_id?: string
+          price?: number
+          quantity?: number
+          seat?: number | null
+          status?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "order_items_order_id_fkey"
+            columns: ["order_id"]
+            isOneToOne: false
+            referencedRelation: "orders"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      orders: {
+        Row: {
+          created_at: string
+          customer_id: string | null
+          discount: number | null
+          gst: number | null
+          guest_count: number | null
+          id: string
+          notes: string | null
+          payment_captured: boolean | null
+          payment_method: string | null
+          serve_together: boolean | null
+          service_charge: number | null
+          service_mode: string
+          status: string
+          subtotal: number | null
+          table_number: string | null
+          total: number | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          customer_id?: string | null
+          discount?: number | null
+          gst?: number | null
+          guest_count?: number | null
+          id?: string
+          notes?: string | null
+          payment_captured?: boolean | null
+          payment_method?: string | null
+          serve_together?: boolean | null
+          service_charge?: number | null
+          service_mode?: string
+          status?: string
+          subtotal?: number | null
+          table_number?: string | null
+          total?: number | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          customer_id?: string | null
+          discount?: number | null
+          gst?: number | null
+          guest_count?: number | null
+          id?: string
+          notes?: string | null
+          payment_captured?: boolean | null
+          payment_method?: string | null
+          serve_together?: boolean | null
+          service_charge?: number | null
+          service_mode?: string
+          status?: string
+          subtotal?: number | null
+          table_number?: string | null
+          total?: number | null
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "orders_customer_id_fkey"
+            columns: ["customer_id"]
+            isOneToOne: false
+            referencedRelation: "customers"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      profiles: {
+        Row: {
+          created_at: string
+          email: string | null
+          full_name: string | null
+          id: string
+          merchant_id: string | null
+          role: string | null
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id: string
+          merchant_id?: string | null
+          role?: string | null
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string | null
+          full_name?: string | null
+          id?: string
+          merchant_id?: string | null
+          role?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never

@@ -132,6 +132,60 @@ export function addTicket(ticket: KDSTicket) {
   emit();
 }
 
+/** Group tickets by orderId when serveTogether is true */
+export interface KDSGroupedOrder {
+  orderId: string;
+  tableNumber?: string;
+  serviceMode: ServiceMode;
+  guestCount: number;
+  serveTogether: boolean;
+  tickets: KDSTicket[];
+  worstUrgency: TicketUrgency;
+  earliestFired?: string;
+}
+
+export function getGroupedTickets(tickets: KDSTicket[]): (KDSTicket | KDSGroupedOrder)[] {
+  const serveTogetherOrders = new Map<string, KDSTicket[]>();
+  const standalone: KDSTicket[] = [];
+
+  tickets.forEach(t => {
+    if (t.serveTogether) {
+      const group = serveTogetherOrders.get(t.orderId) || [];
+      group.push(t);
+      serveTogetherOrders.set(t.orderId, group);
+    } else {
+      standalone.push(t);
+    }
+  });
+
+  const grouped: (KDSTicket | KDSGroupedOrder)[] = [...standalone];
+
+  serveTogetherOrders.forEach((orderTickets, orderId) => {
+    const urgencies = orderTickets.map(getTicketUrgency);
+    const worstUrgency: TicketUrgency = urgencies.includes("red") ? "red" : urgencies.includes("amber") ? "amber" : "green";
+    const first = orderTickets[0];
+    grouped.push({
+      orderId,
+      tableNumber: first.tableNumber,
+      serviceMode: first.serviceMode,
+      guestCount: first.guestCount,
+      serveTogether: true,
+      tickets: orderTickets,
+      worstUrgency,
+      earliestFired: orderTickets.reduce((min, t) => {
+        const f = t.firedAt;
+        return f && (!min || f < min) ? f : min;
+      }, undefined as string | undefined),
+    });
+  });
+
+  return grouped;
+}
+
+export function isGroupedOrder(item: KDSTicket | KDSGroupedOrder): item is KDSGroupedOrder {
+  return "tickets" in item;
+}
+
 export function useKDSTickets() {
   return useSyncExternalStore(
     (cb) => { listeners.add(cb); return () => listeners.delete(cb); },
