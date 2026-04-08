@@ -4,7 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import type { Session } from "@supabase/supabase-js";
 import { Loader2 } from "lucide-react";
 
-export const AuthGuard: React.FC<{ children: React.ReactNode }> = ({ children }) => {
+export const AuthGuard: React.FC<{ children?: React.ReactNode }> = ({ children }) => {
   const [session, setSession] = useState<Session | null | undefined>(undefined);
   const location = useLocation();
 
