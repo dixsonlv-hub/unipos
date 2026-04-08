@@ -47,7 +47,7 @@ const App = () => (
               <Route path="/kiosk" element={<KioskOrdering />} />
               <Route path="/qr" element={<QROrdering />} />
               {/* Single auth gate for all protected routes */}
-              <Route element={<AuthGuard><React.Fragment>{/* passthrough */}</React.Fragment></AuthGuard>}>
+              <Route element={<AuthGuard />}>
                 <Route path="/" element={<Index />} />
                 <Route path="/tablet" element={<TabletPOS />} />
                 <Route path="/mobile" element={<MobilePOS />} />
