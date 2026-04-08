@@ -40,31 +40,32 @@ const App = () => (
           <Sonner />
           <BrowserRouter>
             <Routes>
-              <Route path="/" element={<Index />} />
+              {/* Public routes */}
               <Route path="/login" element={<Login />} />
-              {/* Protected: POS */}
-              <Route path="/tablet" element={<AuthGuard><TabletPOS /></AuthGuard>} />
-              <Route path="/mobile" element={<AuthGuard><MobilePOS /></AuthGuard>} />
-              <Route path="/kds" element={<AuthGuard><KDSDisplay /></AuthGuard>} />
-              {/* Protected: Admin */}
-              <Route path="/admin" element={<AuthGuard><AdminLayout /></AuthGuard>}>
-                <Route index element={<AdminDashboard />} />
-                <Route path="menu" element={<AdminMenu />} />
-                <Route path="staff" element={<AdminStaff />} />
-                <Route path="crm" element={<AdminCRM />} />
-                <Route path="kds" element={<AdminKDS />} />
-                <Route path="sales" element={<AdminSales />} />
-                <Route path="finance" element={<AdminFinance />} />
-                <Route path="settings" element={<AdminSettings />} />
-                <Route path="promotions" element={<AdminPromotions />} />
-                <Route path="inventory" element={<AdminInventory />} />
-                <Route path="floorplan" element={<AdminFloorPlan />} />
-                <Route path="queue" element={<AdminQueue />} />
-              </Route>
-              {/* Public: Customer-facing */}
               <Route path="/queue" element={<QueueKiosk />} />
               <Route path="/kiosk" element={<KioskOrdering />} />
               <Route path="/qr" element={<QROrdering />} />
+              {/* Single auth gate for all protected routes */}
+              <Route element={<AuthGuard />}>
+                <Route path="/" element={<Index />} />
+                <Route path="/tablet" element={<TabletPOS />} />
+                <Route path="/mobile" element={<MobilePOS />} />
+                <Route path="/kds" element={<KDSDisplay />} />
+                <Route path="/admin" element={<AdminLayout />}>
+                  <Route index element={<AdminDashboard />} />
+                  <Route path="menu" element={<AdminMenu />} />
+                  <Route path="staff" element={<AdminStaff />} />
+                  <Route path="crm" element={<AdminCRM />} />
+                  <Route path="kds" element={<AdminKDS />} />
+                  <Route path="sales" element={<AdminSales />} />
+                  <Route path="finance" element={<AdminFinance />} />
+                  <Route path="settings" element={<AdminSettings />} />
+                  <Route path="promotions" element={<AdminPromotions />} />
+                  <Route path="inventory" element={<AdminInventory />} />
+                  <Route path="floorplan" element={<AdminFloorPlan />} />
+                  <Route path="queue" element={<AdminQueue />} />
+                </Route>
+              </Route>
               <Route path="*" element={<NotFound />} />
             </Routes>
           </BrowserRouter>
